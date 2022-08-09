@@ -23,17 +23,6 @@ body {
   background: #5a189a;
 }
 
-.dlt {
-  background: #d02224;
-}
-.add {
-  background: #399c30;
-  font-size: 0.9em;
-}
-.remove {
-  background: #d02224;
-  font-size: 0.9em;
-}
 .btn {
   color: #cbf3f0;
   width: 70px;
@@ -44,6 +33,19 @@ body {
   margin: 0.5em;
   cursor: pointer;
   font-weight: bold;
+}
+.dlt {
+  background: #d02224;
+}
+.add {
+  background: #399c30;
+  width: 40px;
+  font-size: 0.9em;
+}
+.remove {
+  background: #d02224;
+  width: 40px;
+  font-size: 0.9em;
 }
 
 .buttons {

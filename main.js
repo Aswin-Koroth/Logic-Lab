@@ -4,6 +4,8 @@ let canvas = document.querySelector(".canvas"),
 
 let gateButtons = document.querySelectorAll(".gate");
 let dltButton = document.querySelector(".dlt");
+let addButton = document.querySelectorAll(".add");
+let removeButton = document.querySelectorAll(".remove");
 
 let tempSelection = null;
 let currentConLineIndex = null;
@@ -41,8 +43,9 @@ function createBoolBox() {
 }
 
 function updateCanvas() {
-  canvas.width = window.innerWidth - 160;
+  canvas.width = window.innerWidth - 100;
   canvas.height = window.innerHeight - 150;
+  //boolbox
   [...INPUTBOXES, ...OUTPUTBOXES].forEach((box) => box.update(ctx));
   GATES.forEach((gate) => {
     if (gate === currentSelectedGate) gate.update(ctx, true);
@@ -115,7 +118,14 @@ function setEventListeners() {
   canvas.addEventListener("mousedown", onMouseDown);
   canvas.addEventListener("mousemove", onMouseMove);
   addEventListener("mouseup", onMouseUp);
+
   dltButton.addEventListener("click", deleteGate);
+  addButton.forEach((button) => {
+    button.addEventListener("click", addBox);
+  });
+  removeButton.forEach((button) => {
+    button.addEventListener("click", removeBox);
+  });
   gateButtons.forEach((button) => {
     button.addEventListener("mousedown", spawn);
   });
@@ -193,6 +203,26 @@ function onMouseUp(event) {
     }
   }
   tempSelection = null;
+}
+
+function addBox(event) {
+  let button = event.target;
+  let type = button.getAttribute("data-type");
+  if (type == 0 && inputBoxCount < 5) inputBoxCount++;
+  else if (type == 1 && outputBoxCount < 5) outputBoxCount++;
+  INPUTBOXES = [];
+  OUTPUTBOXES = [];
+  createBoolBox();
+}
+
+function removeBox(event) {
+  let button = event.target;
+  let type = button.getAttribute("data-type");
+  if (type == 0 && inputBoxCount > 1) inputBoxCount--;
+  else if (type == 1 && outputBoxCount > 1) outputBoxCount--;
+  INPUTBOXES = [];
+  OUTPUTBOXES = [];
+  createBoolBox();
 }
 
 function spawn(event) {
