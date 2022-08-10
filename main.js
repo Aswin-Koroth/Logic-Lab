@@ -26,19 +26,28 @@ function main() {
 }
 
 function createBoolBox() {
+  let fac = canvas.height * (20 / 100); //20% of canvas.height
   //INPUTS
+  if (INPUTBOXES[inputBoxCount] !== undefined) {
+    INPUTBOXES[inputBoxCount].connection.disconnect();
+    INPUTBOXES.pop();
+  }
   for (let i = 0; i < inputBoxCount; i++) {
-    let fac = canvas.height * (20 / 100);
     let x = 40;
     let y = lerp(fac, canvas.height - fac, (i + 1) / (inputBoxCount + 1));
-    INPUTBOXES.push(new inputBox(x, y));
+    if (INPUTBOXES[i] === undefined) INPUTBOXES.push(new inputBox(x, y));
+    else INPUTBOXES[i].position.y = y;
   }
   //OUTPUTS
+  if (OUTPUTBOXES[outputBoxCount] !== undefined) {
+    OUTPUTBOXES[outputBoxCount].connection.disconnect();
+    OUTPUTBOXES.pop();
+  }
   for (let i = 0; i < outputBoxCount; i++) {
-    let fac = canvas.height * (20 / 100);
     let x = canvas.width - 40;
     let y = lerp(fac, canvas.height - fac, (i + 1) / (outputBoxCount + 1));
-    OUTPUTBOXES.push(new outputBox(x, y));
+    if (OUTPUTBOXES[i] === undefined) OUTPUTBOXES.push(new outputBox(x, y));
+    else OUTPUTBOXES[i].position.y = y;
   }
 }
 
@@ -206,22 +215,20 @@ function onMouseUp(event) {
 }
 
 function addBox(event) {
+  //max = 5
   let button = event.target;
   let type = button.getAttribute("data-type");
   if (type == 0 && inputBoxCount < 5) inputBoxCount++;
   else if (type == 1 && outputBoxCount < 5) outputBoxCount++;
-  INPUTBOXES = [];
-  OUTPUTBOXES = [];
   createBoolBox();
 }
 
 function removeBox(event) {
+  //min = 1
   let button = event.target;
   let type = button.getAttribute("data-type");
   if (type == 0 && inputBoxCount > 1) inputBoxCount--;
   else if (type == 1 && outputBoxCount > 1) outputBoxCount--;
-  INPUTBOXES = [];
-  OUTPUTBOXES = [];
   createBoolBox();
 }
 
@@ -260,7 +267,7 @@ function deleteGate() {
   //disconnect output connections
   for (let i = 0; i < currentSelectedGate.output.connections.length; i++)
     currentSelectedGate.output.disconnect();
-  //remove output connections from output array
+  //remove input connections from input array
   for (let i = 0; i < currentSelectedGate.inputCount; i++)
     remove(currentSelectedGate.input[i], connectionPoints.input);
   //remove output connections from output array

@@ -274,6 +274,7 @@ class inputBox extends boolBox {
     );
   }
   update(context) {
+    // updating connection point position
     this.connection.position.x = this.position.x + this.radius;
     this.connection.position.y = this.position.y;
     this.draw(context);
