@@ -1,5 +1,9 @@
 let connectionPoints = { input: [], output: [] };
 
+function getColor(bool) {
+  return bool ? "#8edf34" : "#47555E"; //true:false
+}
+
 class gate {
   constructor(x, y, inpCount) {
     this.position = { x: x, y: y };
@@ -48,22 +52,20 @@ class gate {
       this.type,
       this.position.x + this.width / 2,
       this.position.y + this.height / 2 + 3
-    ); //temp +3
+    ); //temp 3 for alignment
     //connection Points
     [...this.input, this.output].forEach((point) => point.update(context));
   }
 
   update(context, isSelected) {
-    // this.input.forEach((inp) => {
-    //   // if(inp.start)
-    // });
-
     this.isSelected = isSelected;
+    //updating inputPoint position
     this.input.forEach((point, index) => {
       let loc = this.#getInputLoc(index);
       point.position.x = loc.x;
       point.position.y = loc.y;
     });
+    //updating outputPoint position
     this.output.position.x = this.position.x + this.width;
     this.output.position.y = this.position.y + this.height / 2;
 
@@ -74,10 +76,10 @@ class gate {
 
 class NOT extends gate {
   constructor(x, y) {
-    super(x, y, 1);
+    super(x, y, 1); //1 = inputCount of NOT
     this.type = "NOT";
-    this.height = 40;
-    this.width = 100;
+    this.height = 40; //temp
+    this.width = 100; //temp
     this.offset = { x: this.width / 2, y: this.height / 2 };
   }
   logic() {
@@ -145,11 +147,10 @@ class XOR extends OR {
 }
 
 //Connection Points
-
 class connectionPoint {
   constructor(x, y) {
     this.position = { x: x, y: y };
-    this.radius = 7;
+    this.radius = 7; //temp
     this.value = false;
   }
 
@@ -173,13 +174,13 @@ class inputPoint extends connectionPoint {
   }
 
   update(context) {
-    if (this.connection != null) this.value = this.connection.start.value;
+    if (this.connection) this.value = this.connection.start.value;
     else this.value = false;
     this.draw(context);
   }
 
   drawConLine(context) {
-    if (this.connection != null) this.connection.update(context);
+    if (this.connection) this.connection.update(context);
   }
 
   connect(connection) {
@@ -187,10 +188,8 @@ class inputPoint extends connectionPoint {
   }
 
   disconnect() {
-    //99999
     if (this.connection)
       remove(this.connection, this.connection.start.connections);
-    //000000000
     this.connection = null;
   }
 }
@@ -211,18 +210,14 @@ class outputPoint extends connectionPoint {
 
   disconnect(index = -1) {
     if (index == -1) {
-      for (let i = 0; i < this.connections.length; i++) {
+      for (let i = 0; i < this.connections.length; i++)
         this.connections[i].end.connection = null;
-      }
       this.connections = [];
     } else this.connections.splice(index, 1);
   }
 }
 
-function getColor(bool) {
-  return bool ? "#8edf34" : "#47555E"; //true:false
-}
-
+//Connection line
 class connectionLine {
   constructor(point) {
     this.start = point;
@@ -279,6 +274,7 @@ class inputBox extends boolBox {
     );
   }
   update(context) {
+    // updating connection point position
     this.connection.position.x = this.position.x + this.radius;
     this.connection.position.y = this.position.y;
     this.draw(context);

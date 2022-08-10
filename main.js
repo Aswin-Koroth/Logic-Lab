@@ -4,6 +4,8 @@ let canvas = document.querySelector(".canvas"),
 
 let gateButtons = document.querySelectorAll(".gate");
 let dltButton = document.querySelector(".dlt");
+let addButton = document.querySelectorAll(".add");
+let removeButton = document.querySelectorAll(".remove");
 
 let tempSelection = null;
 let currentConLineIndex = null;
@@ -24,25 +26,35 @@ function main() {
 }
 
 function createBoolBox() {
+  let fac = canvas.height * (20 / 100); //20% of canvas.height
   //INPUTS
+  if (INPUTBOXES[inputBoxCount] !== undefined) {
+    INPUTBOXES[inputBoxCount].connection.disconnect();
+    INPUTBOXES.pop();
+  }
   for (let i = 0; i < inputBoxCount; i++) {
-    let fac = canvas.height * (20 / 100);
     let x = 40;
     let y = lerp(fac, canvas.height - fac, (i + 1) / (inputBoxCount + 1));
-    INPUTBOXES.push(new inputBox(x, y));
+    if (INPUTBOXES[i] === undefined) INPUTBOXES.push(new inputBox(x, y));
+    else INPUTBOXES[i].position.y = y;
   }
   //OUTPUTS
+  if (OUTPUTBOXES[outputBoxCount] !== undefined) {
+    OUTPUTBOXES[outputBoxCount].connection.disconnect();
+    OUTPUTBOXES.pop();
+  }
   for (let i = 0; i < outputBoxCount; i++) {
-    let fac = canvas.height * (20 / 100);
     let x = canvas.width - 40;
     let y = lerp(fac, canvas.height - fac, (i + 1) / (outputBoxCount + 1));
-    OUTPUTBOXES.push(new outputBox(x, y));
+    if (OUTPUTBOXES[i] === undefined) OUTPUTBOXES.push(new outputBox(x, y));
+    else OUTPUTBOXES[i].position.y = y;
   }
 }
 
 function updateCanvas() {
-  canvas.width = window.innerWidth - 160;
+  canvas.width = window.innerWidth - 100;
   canvas.height = window.innerHeight - 150;
+  //boolbox
   [...INPUTBOXES, ...OUTPUTBOXES].forEach((box) => box.update(ctx));
   GATES.forEach((gate) => {
     if (gate === currentSelectedGate) gate.update(ctx, true);
@@ -115,7 +127,14 @@ function setEventListeners() {
   canvas.addEventListener("mousedown", onMouseDown);
   canvas.addEventListener("mousemove", onMouseMove);
   addEventListener("mouseup", onMouseUp);
+
   dltButton.addEventListener("click", deleteGate);
+  addButton.forEach((button) => {
+    button.addEventListener("click", addBox);
+  });
+  removeButton.forEach((button) => {
+    button.addEventListener("click", removeBox);
+  });
   gateButtons.forEach((button) => {
     button.addEventListener("mousedown", spawn);
   });
@@ -195,6 +214,24 @@ function onMouseUp(event) {
   tempSelection = null;
 }
 
+function addBox(event) {
+  //max = 5
+  let button = event.target;
+  let type = button.getAttribute("data-type");
+  if (type == 0 && inputBoxCount < 5) inputBoxCount++;
+  else if (type == 1 && outputBoxCount < 5) outputBoxCount++;
+  createBoolBox();
+}
+
+function removeBox(event) {
+  //min = 1
+  let button = event.target;
+  let type = button.getAttribute("data-type");
+  if (type == 0 && inputBoxCount > 1) inputBoxCount--;
+  else if (type == 1 && outputBoxCount > 1) outputBoxCount--;
+  createBoolBox();
+}
+
 function spawn(event) {
   let button = event.target;
   let fun = button.getAttribute("data-name");
@@ -230,7 +267,7 @@ function deleteGate() {
   //disconnect output connections
   for (let i = 0; i < currentSelectedGate.output.connections.length; i++)
     currentSelectedGate.output.disconnect();
-  //remove output connections from output array
+  //remove input connections from input array
   for (let i = 0; i < currentSelectedGate.inputCount; i++)
     remove(currentSelectedGate.input[i], connectionPoints.input);
   //remove output connections from output array
