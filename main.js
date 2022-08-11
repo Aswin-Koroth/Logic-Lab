@@ -128,7 +128,7 @@ function setEventListeners() {
   canvas.addEventListener("mousemove", onMouseMove);
   addEventListener("mouseup", onMouseUp);
 
-  dltButton.addEventListener("click", deleteGate);
+  // dltButton.addEventListener("click", deleteGate);
   addButton.forEach((button) => {
     button.addEventListener("click", addBox);
   });
@@ -260,20 +260,19 @@ function spawn(event) {
   currentSelectedGate = tempSelection = GATES[index];
 }
 
-function deleteGate() {
+function deleteGate(gate) {
   //disconnect input connections
-  for (let i = 0; i < currentSelectedGate.input.length; i++)
-    currentSelectedGate.input[i].disconnect();
+  for (let i = 0; i < gate.input.length; i++) gate.input[i].disconnect();
   //disconnect output connections
-  for (let i = 0; i < currentSelectedGate.output.connections.length; i++)
+  for (let i = 0; i < gate.output.connections.length; i++)
     currentSelectedGate.output.disconnect();
-  //remove input connections from input array
-  for (let i = 0; i < currentSelectedGate.inputCount; i++)
-    remove(currentSelectedGate.input[i], connectionPoints.input);
-  //remove output connections from output array
-  remove(currentSelectedGate.output, connectionPoints.output);
+  //remove input connection points from input array
+  for (let i = 0; i < gate.inputCount; i++)
+    remove(gate.input[i], connectionPoints.input);
+  //remove output connection points from output array
+  remove(gate.output, connectionPoints.output);
   //remove gate from array
-  remove(currentSelectedGate, GATES);
+  remove(gate, GATES);
 }
 
 main();
