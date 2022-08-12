@@ -12,6 +12,7 @@ class gate {
     this.offset = { x: this.width / 2, y: this.height / 2 };
     this.color = "#613dc1"; //temp
     this.isSelected = false;
+    this.visible = true;
 
     //Logic Properties
     this.input = [];
@@ -45,19 +46,17 @@ class gate {
     context.stroke();
     //Text
     context.fillStyle = "white"; //temp
-    context.font = "2em Poppins"; //temp
+    context.font = "1.3em Poppins"; //temp
     context.textAlign = "center";
     context.textBaseline = "middle";
     context.fillText(
-      this.type,
+      this.name,
       this.position.x + this.width / 2,
       this.position.y + this.height / 2 + 3
     ); //temp 3 for alignment
-    //connection Points
-    [...this.input, this.output].forEach((point) => point.update(context));
   }
 
-  update(context, isSelected) {
+  update(context = null, isSelected = false) {
     this.isSelected = isSelected;
     //updating inputPoint position
     this.input.forEach((point, index) => {
@@ -70,14 +69,41 @@ class gate {
     this.output.position.y = this.position.y + this.height / 2;
 
     this.logic();
-    this.#draw(context);
+    if (context) this.#draw(context);
+    else
+      [...this.input, this.output].forEach((point) => (point.visible = false));
+    //connection Points
+    [...this.input, this.output].forEach((point) => point.update(context));
+  }
+}
+
+class customGate extends gate {
+  constructor(x, y, inpCount, gateList, name, points) {
+    super(x, y, inpCount);
+    this.gates = gateList;
+    this.name = name;
+    this.width = name.length * 10 + 40;
+
+    this.groupInput = points.input;
+    this.groupOutput = points.output;
+  }
+  logic() {
+    this.input.forEach((inp, index) => {
+      this.groupInput[index].forEach((i) => {
+        i.value = inp.value;
+      });
+    });
+    this.gates.forEach((gate) => {
+      gate.update();
+    });
+    this.output.value = this.groupOutput[0].value;
   }
 }
 
 class NOT extends gate {
   constructor(x, y) {
     super(x, y, 1); //1 = inputCount of NOT
-    this.type = "NOT";
+    this.name = "NOT";
     this.height = 40; //temp
     this.width = 100; //temp
     this.offset = { x: this.width / 2, y: this.height / 2 };
@@ -90,7 +116,7 @@ class NOT extends gate {
 class OR extends gate {
   constructor(x, y, inpCount = 2) {
     super(x, y, inpCount);
-    this.type = "OR";
+    this.name = "OR";
   }
   logic() {
     let value = this.input[0].value || this.input[1].value;
@@ -103,7 +129,7 @@ class OR extends gate {
 class AND extends gate {
   constructor(x, y, inpCount = 2) {
     super(x, y, inpCount);
-    this.type = "AND";
+    this.name = "AND";
   }
   logic() {
     let value = this.input[0].value && this.input[1].value;
@@ -116,7 +142,7 @@ class AND extends gate {
 class NOR extends OR {
   constructor(x, y, inpCount = 2) {
     super(x, y, inpCount);
-    this.type = "NOR";
+    this.name = "NOR";
   }
   logic() {
     super.logic();
@@ -126,7 +152,7 @@ class NOR extends OR {
 class NAND extends AND {
   constructor(x, y, inpCount = 2) {
     super(x, y, inpCount);
-    this.type = "NAND";
+    this.name = "NAND";
   }
   logic() {
     super.logic();
@@ -136,7 +162,7 @@ class NAND extends AND {
 class XOR extends OR {
   constructor(x, y, inpCount = 2) {
     super(x, y, inpCount);
-    this.type = "XOR";
+    this.name = "XOR";
   }
   logic() {
     super.logic();
@@ -152,9 +178,11 @@ class connectionPoint {
     this.position = { x: x, y: y };
     this.radius = 7; //temp
     this.value = false;
+    this.visible = true;
   }
 
   draw(context) {
+    if (!this.visible) return;
     context.beginPath();
     context.strokeStyle = "black";
     context.arc(this.position.x, this.position.y, this.radius, 0, 2 * Math.PI);
@@ -238,6 +266,7 @@ class connectionLine {
   }
 }
 
+//Value Box
 class boolBox {
   constructor(x, y) {
     this.position = { x: x, y: y };

@@ -3,7 +3,7 @@ let canvas = document.querySelector(".canvas"),
   ctx = canvas.getContext("2d");
 
 let gateButtons = document.querySelectorAll(".gate");
-let dltButton = document.querySelector(".dlt");
+// let dltButton = document.querySelector(".dlt");
 let addButton = document.querySelectorAll(".add");
 let removeButton = document.querySelectorAll(".remove");
 
@@ -57,8 +57,7 @@ function updateCanvas() {
   //boolbox
   [...INPUTBOXES, ...OUTPUTBOXES].forEach((box) => box.update(ctx));
   GATES.forEach((gate) => {
-    if (gate === currentSelectedGate) gate.update(ctx, true);
-    else gate.update(ctx, false);
+    gate.update(ctx, gate === currentSelectedGate);
   });
   requestAnimationFrame(updateCanvas);
 }
@@ -141,6 +140,7 @@ function setEventListeners() {
 }
 
 function onRClick(event) {
+  console.log(event.button);
   let point = getCurrentSelection(event);
   if (point != null) point.disconnect();
 }
@@ -163,7 +163,7 @@ function onMouseDown(event) {
       GATES.push(tempSelection);
       tempSelection.offset.x = event.offsetX - tempSelection.position.x;
       tempSelection.offset.y = event.offsetY - tempSelection.position.y;
-    } else if (tempSelection instanceof connectionPoint) {
+    } else if (tempSelection instanceof outputPoint) {
       currentConLineIndex =
         tempSelection.connections.push(new connectionLine(tempSelection)) - 1;
     }
@@ -177,7 +177,7 @@ function onMouseMove(event) {
       //Moving Gate
       tempSelection.position.x = event.offsetX - tempSelection.offset.x;
       tempSelection.position.y = event.offsetY - tempSelection.offset.y;
-    } else if (tempSelection instanceof connectionPoint) {
+    } else if (tempSelection instanceof outputPoint) {
       //Moving Connection Line
       tempSelection.connections[currentConLineIndex].end.position.x =
         event.offsetX;
@@ -196,7 +196,7 @@ function onMouseMove(event) {
 }
 
 function onMouseUp(event) {
-  if (tempSelection instanceof connectionPoint) {
+  if (tempSelection instanceof outputPoint) {
     if (snapable && snapable.connection == null) {
       //temp replace
       // let replace = snapable.connection != null;
@@ -258,6 +258,36 @@ function spawn(event) {
   }
 
   currentSelectedGate = tempSelection = GATES[index];
+}
+
+function newGate() {
+  //check connection points list for duplicates
+  let point = { input: [], output: [] };
+  for (let i = 0; i < INPUTBOXES.length; i++) {
+    let box = INPUTBOXES[i];
+    if (!box.connection.connections[0]) continue;
+    let pointList = [];
+    box.connection.connections.forEach((con) => {
+      pointList.push(con.end);
+    });
+    point.input.push(pointList);
+  }
+  for (let i = 0; i < OUTPUTBOXES.length; i++) {
+    let box = OUTPUTBOXES[i];
+    if (!box.connection.connection) continue;
+    point.output.push(box.connection.connection.start);
+  }
+  console.log(point);
+  let gates = [...GATES];
+  GATES = [];
+  let ind =
+    GATES.push(new customGate(100, 200, inputBoxCount, gates, "NOR", point)) -
+    1; //temp
+  let cgate = GATES[ind];
+  console.log(cgate);
+  INPUTBOXES = [];
+  OUTPUTBOXES = [];
+  createBoolBox();
 }
 
 function deleteGate(gate) {
