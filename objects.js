@@ -5,7 +5,7 @@ function getColor(bool) {
 }
 
 class gate {
-  constructor(x, y, inpCount) {
+  constructor(x, y, inpCount, outCount = 1) {
     this.position = { x: x, y: y };
     this.height = 70; //temp
     this.width = 110; //temp
@@ -15,25 +15,37 @@ class gate {
 
     //Logic Properties
     this.input = [];
+    this.output = [];
     this.inputCount = inpCount;
+    this.outputCount = outCount;
     for (let i = 0; i < this.inputCount; i++) {
-      let loc = this.#getInputLoc(i);
+      let loc = this.#getConPointLoc(0, i); //0 - ID for input
       this.input.push(new inputPoint(loc.x, loc.y));
     }
-    this.output = new outputPoint(
-      this.position.x + this.width,
-      this.position.y + this.height / 2
-    );
+    for (let i = 0; i < this.outputCount; i++) {
+      let loc = this.#getConPointLoc(1, i); //1 - ID for output
+      this.output.push(new outputPoint(loc.x, loc.y));
+    }
   }
 
-  #getInputLoc(i) {
-    let y = lerp(
+  #getConPointLoc(id, i) {
+    let loc = { x: null, y: null };
+    let count;
+    if (id == 0) {
+      loc.x = this.position.x;
+      count = this.inputCount;
+    } else {
+      loc.x = this.position.x + this.width;
+      count = this.outputCount;
+    }
+    loc.y = lerp(
       this.position.y,
       this.position.y + this.height,
-      (i + 1) / (this.inputCount + 1)
+      (i + 1) / (count + 1)
     );
-    return { x: this.position.x, y: y };
+    return loc;
   }
+
   #draw(context) {
     //Body
     context.beginPath();
@@ -59,24 +71,27 @@ class gate {
     this.isSelected = isSelected;
     //updating inputPoint position
     this.input.forEach((point, index) => {
-      let loc = this.#getInputLoc(index);
+      let loc = this.#getConPointLoc(0, index);
       point.position.x = loc.x;
       point.position.y = loc.y;
     });
     //updating outputPoint position
-    this.output.position.x = this.position.x + this.width;
-    this.output.position.y = this.position.y + this.height / 2;
+    this.output.forEach((point, index) => {
+      let loc = this.#getConPointLoc(1, index);
+      point.position.x = loc.x;
+      point.position.y = loc.y;
+    });
 
     this.logic();
     //connection Points
     if (context) this.#draw(context);
-    [...this.input, this.output].forEach((point) => point.update(context));
+    [...this.input, ...this.output].forEach((point) => point.update(context));
   }
 }
 
 class customGate extends gate {
-  constructor(x, y, inpCount, gateList, name, points) {
-    super(x, y, inpCount);
+  constructor(x, y, inpCount, outCount, gateList, name, points) {
+    super(x, y, inpCount, outCount);
     this.gates = gateList;
     this.name = name;
     this.width = name.length * 10 + 40;
@@ -84,16 +99,21 @@ class customGate extends gate {
     this.groupInput = points.input;
     this.groupOutput = points.output;
   }
+
   logic() {
     this.input.forEach((inp, index) => {
       this.groupInput[index].forEach((i) => {
         i.value = inp.value;
       });
     });
+
     this.gates.forEach((gate) => {
       gate.update();
     });
-    this.output.value = this.groupOutput[0].value;
+
+    this.output.forEach((out, index) => {
+      out.value = this.groupOutput[index].value;
+    });
   }
 }
 
@@ -106,7 +126,7 @@ class NOT extends gate {
     this.offset = { x: this.width / 2, y: this.height / 2 };
   }
   logic() {
-    this.output.value = !this.input[0].value;
+    this.output[0].value = !this.input[0].value;
   }
 }
 
@@ -119,7 +139,7 @@ class OR extends gate {
     let value = this.input[0].value || this.input[1].value;
     for (let i = 2; i < this.inputCount; i++)
       value = value || this.input[i].value;
-    this.output.value = value;
+    this.output[0].value = value;
   }
 }
 
@@ -132,7 +152,7 @@ class AND extends gate {
     let value = this.input[0].value && this.input[1].value;
     for (let i = 2; i < this.inputCount; i++)
       value = value && this.input[i].value;
-    this.output.value = value;
+    this.output[0].value = value;
   }
 }
 
@@ -143,7 +163,7 @@ class NOR extends OR {
   }
   logic() {
     super.logic();
-    this.output.value = !this.output.value;
+    this.output[0].value = !this.output[0].value;
   }
 }
 class NAND extends AND {
@@ -153,7 +173,7 @@ class NAND extends AND {
   }
   logic() {
     super.logic();
-    this.output.value = !this.output.value;
+    this.output[0].value = !this.output[0].value;
   }
 }
 class XOR extends OR {
@@ -165,7 +185,7 @@ class XOR extends OR {
     super.logic();
     let count = 0;
     for (let i = 0; i < this.inputCount; i++) if (this.input[i].value) count++;
-    if (count == this.inputCount) this.output.value = false;
+    if (count == this.inputCount) this.output[0].value = false;
   }
 }
 

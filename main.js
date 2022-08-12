@@ -3,7 +3,6 @@ let canvas = document.querySelector(".canvas"),
   ctx = canvas.getContext("2d");
 
 let gateButtons = document.querySelectorAll(".gate");
-// let dltButton = document.querySelector(".dlt");
 let addButton = document.querySelectorAll(".add");
 let removeButton = document.querySelectorAll(".remove");
 
@@ -128,7 +127,6 @@ function setEventListeners() {
   canvas.addEventListener("mousemove", onMouseMove);
   addEventListener("mouseup", onMouseUp);
 
-  // dltButton.addEventListener("click", deleteGate);
   addButton.forEach((button) => {
     button.addEventListener("click", addBox);
   });
@@ -268,13 +266,13 @@ function spawn(event) {
       index = GATES.push(new XOR(event.pageX, event.pageY)) - 1;
       break;
     default:
-      console.log("hello");
       index =
         GATES.push(
           new customGate(
             event.pageX,
             event.pageY,
             customGateData.inputCount,
+            customGateData.outputCount,
             customGateData.gates,
             customGateData.name,
             customGateData.point
@@ -288,11 +286,12 @@ function spawn(event) {
 function newGate() {
   customGateData = {
     inputCount: 0,
+    outputCount: 0,
     gates: [...GATES],
     name: "NEW",
     point: { input: [], output: [] },
   };
-  //check connection points list for duplicates
+  //getting input side points
   for (let i = 0; i < INPUTBOXES.length; i++) {
     let box = INPUTBOXES[i];
     if (!box.connection.connections[0]) continue;
@@ -302,31 +301,33 @@ function newGate() {
     });
     customGateData.point.input.push(pointList);
   }
+  //getting output side points
   for (let i = 0; i < OUTPUTBOXES.length; i++) {
     let box = OUTPUTBOXES[i];
     if (!box.connection.connection) continue;
     customGateData.point.output.push(box.connection.connection.start);
   }
-  customGateData.inputCount = customGateData.point.input.length;
-  createGateBtn(customGateData.name);
 
+  customGateData.inputCount = customGateData.point.input.length;
+  customGateData.outputCount = customGateData.point.output.length;
+  createGateBtn(customGateData.name);
+  //clearing
   GATES = [];
+  connectionPoints = { input: [], output: [] };
   INPUTBOXES = [];
   OUTPUTBOXES = [];
   createBoolBox();
 }
 
 function deleteGate(gate) {
-  //disconnect input connections
-  for (let i = 0; i < gate.input.length; i++) gate.input[i].disconnect();
-  //disconnect output connections
-  for (let i = 0; i < gate.output.connections.length; i++)
-    currentSelectedGate.output.disconnect();
+  //disconnect input and output connections
+  [...gate.input, ...gate.output].forEach((con) => con.disconnect());
   //remove input connection points from input array
   for (let i = 0; i < gate.inputCount; i++)
     remove(gate.input[i], connectionPoints.input);
   //remove output connection points from output array
-  remove(gate.output, connectionPoints.output);
+  for (let i = 0; i < gate.outputCount; i++)
+    remove(gate.output[i], connectionPoints.output);
   //remove gate from array
   remove(gate, GATES);
 }
