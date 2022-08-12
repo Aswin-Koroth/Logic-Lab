@@ -18,6 +18,7 @@ let outputBoxCount = 1;
 let GATES = [];
 let INPUTBOXES = [];
 let OUTPUTBOXES = [];
+let customGateData = {};
 
 function main() {
   setEventListeners();
@@ -232,6 +233,17 @@ function removeBox(event) {
   createBoolBox();
 }
 
+function createGateBtn(label) {
+  let div = document.querySelector(".custom");
+  let button = document.createElement("div");
+  button.classList.add("btn", "gate");
+  button.setAttribute("data-name", label);
+  button.innerText = label;
+
+  button.addEventListener("mousedown", spawn);
+  div.appendChild(button);
+}
+
 function spawn(event) {
   let button = event.target;
   let fun = button.getAttribute("data-name");
@@ -255,14 +267,32 @@ function spawn(event) {
     case "XOR":
       index = GATES.push(new XOR(event.pageX, event.pageY)) - 1;
       break;
+    default:
+      console.log("hello");
+      index =
+        GATES.push(
+          new customGate(
+            event.pageX,
+            event.pageY,
+            customGateData.inputCount,
+            customGateData.gates,
+            customGateData.name,
+            customGateData.point
+          )
+        ) - 1;
   }
-
+  console.log(GATES[index]);
   currentSelectedGate = tempSelection = GATES[index];
 }
 
 function newGate() {
+  customGateData = {
+    inputCount: 0,
+    gates: [...GATES],
+    name: "NEW",
+    point: { input: [], output: [] },
+  };
   //check connection points list for duplicates
-  let point = { input: [], output: [] };
   for (let i = 0; i < INPUTBOXES.length; i++) {
     let box = INPUTBOXES[i];
     if (!box.connection.connections[0]) continue;
@@ -270,21 +300,17 @@ function newGate() {
     box.connection.connections.forEach((con) => {
       pointList.push(con.end);
     });
-    point.input.push(pointList);
+    customGateData.point.input.push(pointList);
   }
   for (let i = 0; i < OUTPUTBOXES.length; i++) {
     let box = OUTPUTBOXES[i];
     if (!box.connection.connection) continue;
-    point.output.push(box.connection.connection.start);
+    customGateData.point.output.push(box.connection.connection.start);
   }
-  console.log(point);
-  let gates = [...GATES];
+  customGateData.inputCount = customGateData.point.input.length;
+  createGateBtn(customGateData.name);
+
   GATES = [];
-  let ind =
-    GATES.push(new customGate(100, 200, inputBoxCount, gates, "NOR", point)) -
-    1; //temp
-  let cgate = GATES[ind];
-  console.log(cgate);
   INPUTBOXES = [];
   OUTPUTBOXES = [];
   createBoolBox();

@@ -12,7 +12,6 @@ class gate {
     this.offset = { x: this.width / 2, y: this.height / 2 };
     this.color = "#613dc1"; //temp
     this.isSelected = false;
-    this.visible = true;
 
     //Logic Properties
     this.input = [];
@@ -69,10 +68,8 @@ class gate {
     this.output.position.y = this.position.y + this.height / 2;
 
     this.logic();
-    if (context) this.#draw(context);
-    else
-      [...this.input, this.output].forEach((point) => (point.visible = false));
     //connection Points
+    if (context) this.#draw(context);
     [...this.input, this.output].forEach((point) => point.update(context));
   }
 }
@@ -178,11 +175,10 @@ class connectionPoint {
     this.position = { x: x, y: y };
     this.radius = 7; //temp
     this.value = false;
-    this.visible = true;
   }
 
   draw(context) {
-    if (!this.visible) return;
+    if (!context) return;
     context.beginPath();
     context.strokeStyle = "black";
     context.arc(this.position.x, this.position.y, this.radius, 0, 2 * Math.PI);
