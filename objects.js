@@ -7,8 +7,9 @@ function getColor(bool) {
 class gate {
   constructor(x, y, inpCount, outCount = 1) {
     this.position = { x: x, y: y };
-    this.height = 70; //temp
-    this.width = 110; //temp
+    this.height = inpCount * (connectionPoint.radius * 2) + 20;
+    // this.height = 60; //temp
+    this.width = 80; //temp
     this.offset = { x: this.width / 2, y: this.height / 2 };
     this.color = "#613dc1"; //temp
     this.isSelected = false;
@@ -97,6 +98,7 @@ class customGate extends gate {
     this.circuit = circuit;
     this.name = name;
     this.width = name.length * 10 + 40;
+    // this.height = inpCount * (this.input[0].radius * 2) + 20;
 
     this.groupInput = points.input;
     this.groupOutput = points.output;
@@ -114,6 +116,7 @@ class customGate extends gate {
     });
 
     this.output.forEach((out, index) => {
+      // console.log(this.groupOutput);
       out.value = this.groupOutput[index].value;
     });
   }
@@ -124,7 +127,7 @@ class NOT extends gate {
     super(x, y, 1); //1 = inputCount of NOT
     this.name = "NOT";
     this.height = 40; //temp
-    this.width = 100; //temp
+    this.width = 80; //temp
     this.offset = { x: this.width / 2, y: this.height / 2 };
   }
   logic() {
@@ -193,6 +196,7 @@ class XOR extends OR {
 
 //Connection Points
 class connectionPoint {
+  static radius = 7;
   constructor(x, y, parent) {
     this.position = { x: x, y: y };
     this.radius = 7; //temp
@@ -204,7 +208,13 @@ class connectionPoint {
     if (!context) return;
     context.beginPath();
     context.strokeStyle = "black";
-    context.arc(this.position.x, this.position.y, this.radius, 0, 2 * Math.PI);
+    context.arc(
+      this.position.x,
+      this.position.y,
+      connectionPoint.radius,
+      0,
+      2 * Math.PI
+    );
     context.fillStyle = getColor(this.value);
     context.fill();
     context.stroke();

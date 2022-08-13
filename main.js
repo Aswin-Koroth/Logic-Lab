@@ -11,21 +11,27 @@ let currentConLineIndex = null;
 let currentSelectedGate = null;
 let snapable = false;
 
+let defaultGateInputCount = 2;
+
 let inputBoxCount = 2;
 let outputBoxCount = 1;
-let maxBoxCount = 9;
+let maxBoxCount = 10;
 let minBoxCount = 1;
 
 let GATES = [];
 let INPUTBOXES = [];
 let OUTPUTBOXES = [];
 
-let rawData = {};
-
 function main() {
   setEventListeners();
   updateCanvas();
   createBoolBox();
+  createCustomGateButtons();
+}
+
+function createCustomGateButtons() {
+  let buttons = Object.keys(localStorage);
+  buttons.forEach((btn) => createGateBtn(btn));
 }
 
 function createBoolBox() {
@@ -80,7 +86,7 @@ function getCurrentSelection(event) {
       event,
       point.position.x,
       point.position.y,
-      point.radius
+      connectionPoint.radius
     );
     if (isIn) return point;
   }
@@ -91,7 +97,7 @@ function getCurrentSelection(event) {
       event,
       point.position.x,
       point.position.y,
-      point.radius
+      connectionPoint.radius
     );
     if (isIn) return point;
   }
@@ -250,7 +256,8 @@ function spawn(event) {
 }
 
 function getGateData(name) {
-  let circuit = getCircuit(rawData[name]);
+  let rawData = JSON.parse(localStorage.getItem(name));
+  let circuit = getCircuit(rawData);
   let inputCount = circuit.points.input.length;
   let outputCount = circuit.points.output.length;
 
@@ -263,29 +270,13 @@ function getGateData(name) {
   };
 }
 
-// var list = ["NOT", "OR", "OR"];
-// var obj = [
-//   { input: [0], output: [[[2, 0]]] },
-//   { input: [1, 2], output: [[[2, 1]]] },
-//   { input: [null], output: [[[0]]] },
-// ];
-
-// var constomData = {
-//   gates: ["OR", "NOT"],
-//   connections: [
-//     { input: [0, 1], output: [[[1, 0]]] },
-//     { input: [null], output: [[[0]]] },
-//   ],
-// };
-
 function getCircuit(rawData) {
-  //optimize - 1 forEach
   let ob = rawData.connections;
   let gate = rawData.gates;
   let circuit = [];
   let points = { input: [[]], output: [] };
   //creating all gates
-  gate.forEach((g) => circuit.push(createGate(g.name)));
+  gate.forEach((g) => circuit.push(createGate(g)));
 
   circuit.forEach((gt, index) => {
     //setting output points
@@ -308,24 +299,23 @@ function getCircuit(rawData) {
       }
     });
   });
-
   return { circuit: circuit, points: points };
 }
 
 function createGate(name, x = 0, y = 0) {
   switch (name) {
     case "AND":
-      return new AND(x, y);
+      return new AND(x, y, defaultGateInputCount);
     case "OR":
-      return new OR(x, y);
+      return new OR(x, y, defaultGateInputCount);
     case "NOT":
       return new NOT(x, y);
     case "NAND":
-      return new NAND(x, y);
+      return new NAND(x, y, defaultGateInputCount);
     case "NOR":
-      return new NOR(x, y);
+      return new NOR(x, y, defaultGateInputCount);
     case "XOR":
-      return new XOR(x, y);
+      return new XOR(x, y, defaultGateInputCount);
     default:
       gateData = getGateData(name);
       return new customGate(
@@ -342,10 +332,10 @@ function createGate(name, x = 0, y = 0) {
 
 function getRawData() {
   let name = prompt("Name");
-  rawData[name] = { gates: [], connections: [] };
-  rawData[name].gates = [...GATES];
+  let gates = GATES.map((g) => g.name);
+  let rawData = { gates: gates, connections: [] };
 
-  GATES.forEach((gt, index) => {
+  GATES.forEach((gt) => {
     let input = [];
     let output = [];
     gt.input.forEach((inp) => {
@@ -364,8 +354,10 @@ function getRawData() {
       });
       output.push(conList);
     });
-    rawData[name].connections.push({ input: input, output: output });
+    rawData.connections.push({ input: input, output: output });
   });
+  //saving gate data in localstorage
+  localStorage.setItem(name, JSON.stringify(rawData));
 
   createGateBtn(name);
   //clearing
