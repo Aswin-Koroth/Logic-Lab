@@ -20,11 +20,13 @@ class gate {
     this.outputCount = outCount;
     for (let i = 0; i < this.inputCount; i++) {
       let loc = this.#getConPointLoc(0, i); //0 - ID for input
-      this.input.push(new inputPoint(loc.x, loc.y));
+      this.input.push(new inputPoint(loc.x, loc.y, { isGate: this, index: i }));
     }
     for (let i = 0; i < this.outputCount; i++) {
       let loc = this.#getConPointLoc(1, i); //1 - ID for output
-      this.output.push(new outputPoint(loc.x, loc.y));
+      this.output.push(
+        new outputPoint(loc.x, loc.y, { isGate: this, index: i })
+      );
     }
   }
 
@@ -191,10 +193,11 @@ class XOR extends OR {
 
 //Connection Points
 class connectionPoint {
-  constructor(x, y) {
+  constructor(x, y, parent) {
     this.position = { x: x, y: y };
     this.radius = 7; //temp
     this.value = false;
+    this.parent = { isGate: parent.isGate, index: parent.index };
   }
 
   draw(context) {
@@ -211,8 +214,8 @@ class connectionPoint {
 
 class inputPoint extends connectionPoint {
   static snapDistance = 12;
-  constructor(x, y) {
-    super(x, y);
+  constructor(x, y, parent) {
+    super(x, y, parent);
     this.connection = null;
     connectionPoints.input.push(this);
   }
@@ -240,8 +243,8 @@ class inputPoint extends connectionPoint {
 }
 
 class outputPoint extends connectionPoint {
-  constructor(x, y) {
-    super(x, y);
+  constructor(x, y, parent) {
+    super(x, y, parent);
     this.connections = [];
     connectionPoints.output.push(this);
   }
@@ -312,11 +315,12 @@ class boolBox {
 }
 
 class inputBox extends boolBox {
-  constructor(x, y) {
+  constructor(x, y, index) {
     super(x, y);
     this.connection = new outputPoint(
       this.position.x + this.radius,
-      this.position.y
+      this.position.y,
+      { isGate: false, index: index }
     );
   }
   update(context) {
@@ -328,11 +332,12 @@ class inputBox extends boolBox {
 }
 
 class outputBox extends boolBox {
-  constructor(x, y) {
+  constructor(x, y, index) {
     super(x, y);
     this.connection = new inputPoint(
       this.position.x - this.radius,
-      this.position.y
+      this.position.y,
+      { isGate: false, index: index }
     );
   }
   update(context) {

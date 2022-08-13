@@ -19,6 +19,8 @@ let minBoxCount = 1;
 let GATES = [];
 let INPUTBOXES = [];
 let OUTPUTBOXES = [];
+
+let rawData = {};
 let customGateData = {};
 
 function main() {
@@ -37,7 +39,7 @@ function createBoolBox() {
   for (let i = 0; i < inputBoxCount; i++) {
     let x = 40;
     let y = lerp(fac, canvas.height - fac, (i + 1) / (inputBoxCount + 1));
-    if (INPUTBOXES[i] === undefined) INPUTBOXES.push(new inputBox(x, y));
+    if (INPUTBOXES[i] === undefined) INPUTBOXES.push(new inputBox(x, y, i));
     else INPUTBOXES[i].position.y = y;
   }
   //OUTPUTS
@@ -48,7 +50,7 @@ function createBoolBox() {
   for (let i = 0; i < outputBoxCount; i++) {
     let x = canvas.width - 40;
     let y = lerp(fac, canvas.height - fac, (i + 1) / (outputBoxCount + 1));
-    if (OUTPUTBOXES[i] === undefined) OUTPUTBOXES.push(new outputBox(x, y));
+    if (OUTPUTBOXES[i] === undefined) OUTPUTBOXES.push(new outputBox(x, y, i));
     else OUTPUTBOXES[i].position.y = y;
   }
 }
@@ -242,6 +244,7 @@ function createGateBtn(label) {
 }
 
 function spawn(event) {
+  //redesign
   let button = event.target;
   let fun = button.getAttribute("data-name");
   let index;
@@ -265,7 +268,7 @@ function spawn(event) {
       index = GATES.push(new XOR(event.pageX, event.pageY)) - 1;
       break;
     default:
-      gateData = getGateData();
+      gateData = getGateData(fun);
       index =
         GATES.push(
           new customGate(
@@ -281,9 +284,10 @@ function spawn(event) {
   }
   currentSelectedGate = tempSelection = GATES[index];
 }
-
-function getGateData() {
-  let circuit = getCircuit();
+var a = null;
+function getGateData(name) {
+  let circuit = getCircuit(rawData[name]);
+  a = circuit;
   let inputCount = circuit.points.input.length;
   let outputCount = circuit.points.output.length;
 
@@ -291,25 +295,34 @@ function getGateData() {
     inCount: inputCount,
     outCount: outputCount,
     circuit: circuit.circuit,
-    name: "HELLO",
+    name: name,
     points: circuit.points,
   };
 }
 
-var list = ["NOT", "OR", "OR"];
-var obj = [
-  { input: [0], output: [[[2, 0]]] },
-  { input: [1, 2], output: [[[2, 1]]] },
-  { input: [null], output: [[[0]]] },
-];
+// var list = ["NOT", "OR", "OR"];
+// var obj = [
+//   { input: [0], output: [[[2, 0]]] },
+//   { input: [1, 2], output: [[[2, 1]]] },
+//   { input: [null], output: [[[0]]] },
+// ];
 
-function getCircuit() {
-  let ob = obj;
-  let gate = list;
+// var constomData = {
+//   gates: ["OR", "NOT"],
+//   connections: [
+//     { input: [0, 1], output: [[[1, 0]]] },
+//     { input: [null], output: [[[0]]] },
+//   ],
+// };
+
+function getCircuit(rawData) {
+  //optimize - 1 forEach
+  let ob = rawData.connections;
+  let gate = rawData.gates;
   let circuit = [];
   let points = { input: [[]], output: [] };
   gate.forEach((g, index) => {
-    gt = createGate(g);
+    gt = createGate(g.name);
     ob[index].output.forEach((con, i) => {
       con.forEach((line) => {
         if (line.length == 1) {
@@ -328,6 +341,7 @@ function getCircuit() {
         if (line.length == 2) {
           circuit[line[0]].input[line[1]].connect(gt.output[i].connections[j]);
         } else {
+          console.log(gt, "dddd", line[0]);
           points.output[line[0]] = gt.output[i];
         }
       });
@@ -339,7 +353,6 @@ function getCircuit() {
       }
     });
   });
-  console.log(points);
   return { circuit: circuit, points: points };
 }
 
@@ -366,34 +379,34 @@ function createGate(name, x = 100, y = 100) {
   }
 }
 
-function newGate() {
-  customGateData = {
-    inCount: 0,
-    outCount: 0,
-    circuit: [...GATES],
-    name: "NEW",
-    points: { input: [], output: [] },
-  };
-  //getting input side points
-  for (let i = 0; i < INPUTBOXES.length; i++) {
-    let box = INPUTBOXES[i];
-    if (!box.connection.connections[0]) continue;
-    let pointList = [];
-    box.connection.connections.forEach((con) => {
-      pointList.push(con.end);
-    });
-    customGateData.points.input.push(pointList);
-  }
-  //getting output side points
-  for (let i = 0; i < OUTPUTBOXES.length; i++) {
-    let box = OUTPUTBOXES[i];
-    if (!box.connection.connection) continue;
-    customGateData.points.output.push(box.connection.connection.start);
-  }
+function getRawData() {
+  let name = "HELLO"; //name get temp
+  rawData[name] = { gates: [], connections: [] };
+  rawData[name].gates = [...GATES];
 
-  customGateData.inCount = customGateData.points.input.length;
-  customGateData.outCount = customGateData.points.output.length;
-  createGateBtn(customGateData.name);
+  GATES.forEach((gt, index) => {
+    let input = [];
+    let output = [];
+    gt.input.forEach((inp) => {
+      let parent = inp.connection.start.parent;
+      if (parent.isGate) input.push(null);
+      else input.push(parent.index);
+    });
+    gt.output.forEach((out) => {
+      let conList = [];
+      out.connections.forEach((con) => {
+        let parent = con.end.parent;
+        if (parent.isGate) {
+          let gateIndex = GATES.indexOf(parent.isGate);
+          conList.push([gateIndex, parent.index]);
+        } else conList.push([parent.index]);
+      });
+      output.push(conList);
+    });
+    rawData[name].connections.push({ input: input, output: output });
+  });
+
+  createGateBtn(name);
   //clearing
   GATES = [];
   connectionPoints = { input: [], output: [] };
@@ -419,5 +432,3 @@ main();
 
 // 3/8/2022
 // Aswin-Koroth
-//GATES[0].circuit[0].output[0].value = true
-//GATES[0].circuit[0].output[0].connections[0].end.connection
