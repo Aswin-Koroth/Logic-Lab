@@ -21,7 +21,6 @@ let INPUTBOXES = [];
 let OUTPUTBOXES = [];
 
 let rawData = {};
-let customGateData = {};
 
 function main() {
   setEventListeners();
@@ -244,50 +243,14 @@ function createGateBtn(label) {
 }
 
 function spawn(event) {
-  //redesign
   let button = event.target;
   let fun = button.getAttribute("data-name");
-  let index;
-  switch (fun) {
-    case "AND":
-      index = GATES.push(new AND(event.pageX, event.pageY)) - 1;
-      break;
-    case "OR":
-      index = GATES.push(new OR(event.pageX, event.pageY)) - 1;
-      break;
-    case "NOT":
-      index = GATES.push(new NOT(event.pageX, event.pageY)) - 1;
-      break;
-    case "NAND":
-      index = GATES.push(new NAND(event.pageX, event.pageY)) - 1;
-      break;
-    case "NOR":
-      index = GATES.push(new NOR(event.pageX, event.pageY)) - 1;
-      break;
-    case "XOR":
-      index = GATES.push(new XOR(event.pageX, event.pageY)) - 1;
-      break;
-    default:
-      gateData = getGateData(fun);
-      index =
-        GATES.push(
-          new customGate(
-            event.pageX,
-            event.pageY,
-            gateData.inCount,
-            gateData.outCount,
-            gateData.circuit,
-            gateData.name,
-            gateData.points
-          )
-        ) - 1;
-  }
+  let index = GATES.push(createGate(fun, event.pageX, event.pageY)) - 1;
   currentSelectedGate = tempSelection = GATES[index];
 }
-var a = null;
+
 function getGateData(name) {
   let circuit = getCircuit(rawData[name]);
-  a = circuit;
   let inputCount = circuit.points.input.length;
   let outputCount = circuit.points.output.length;
 
@@ -321,31 +284,23 @@ function getCircuit(rawData) {
   let gate = rawData.gates;
   let circuit = [];
   let points = { input: [[]], output: [] };
-  gate.forEach((g, index) => {
-    gt = createGate(g.name);
-    ob[index].output.forEach((con, i) => {
-      con.forEach((line) => {
-        if (line.length == 1) {
-        } //set output box
-        else {
-          gt.output[i].connections.push(new connectionLine(gt.output[i]));
-        }
-      });
-    });
-    circuit.push(gt);
-  });
+  //creating all gates
+  gate.forEach((g) => circuit.push(createGate(g.name)));
 
   circuit.forEach((gt, index) => {
-    ob[index].output.forEach((con, i) => {
-      con.forEach((line, j) => {
+    //setting output points
+    ob[index].output.forEach((con, i) =>
+      con.forEach((line) => {
         if (line.length == 2) {
-          circuit[line[0]].input[line[1]].connect(gt.output[i].connections[j]);
-        } else {
-          console.log(gt, "dddd", line[0]);
-          points.output[line[0]] = gt.output[i];
-        }
-      });
-    });
+          let ind =
+            gt.output[i].connections.push(new connectionLine(gt.output[i])) - 1;
+          circuit[line[0]].input[line[1]].connect(
+            gt.output[i].connections[ind]
+          );
+        } else points.output[line[0]] = gt.output[i];
+      })
+    );
+    //setting input points
     ob[index].input.forEach((inp, i) => {
       if (inp != null) {
         if (!points.input[inp]) points.input[inp] = [];
@@ -353,34 +308,40 @@ function getCircuit(rawData) {
       }
     });
   });
+
   return { circuit: circuit, points: points };
 }
 
-function createGate(name, x = 100, y = 100) {
+function createGate(name, x = 0, y = 0) {
   switch (name) {
     case "AND":
       return new AND(x, y);
-      break;
     case "OR":
       return new OR(x, y);
-      break;
     case "NOT":
       return new NOT(x, y);
-      break;
     case "NAND":
       return new NAND(x, y);
-      break;
     case "NOR":
       return new NOR(x, y);
-      break;
     case "XOR":
       return new XOR(x, y);
-      break;
+    default:
+      gateData = getGateData(name);
+      return new customGate(
+        x,
+        y,
+        gateData.inCount,
+        gateData.outCount,
+        gateData.circuit,
+        gateData.name,
+        gateData.points
+      );
   }
 }
 
 function getRawData() {
-  let name = "HELLO"; //name get temp
+  let name = prompt("Name");
   rawData[name] = { gates: [], connections: [] };
   rawData[name].gates = [...GATES];
 
