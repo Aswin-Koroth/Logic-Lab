@@ -90,9 +90,9 @@ class gate {
 }
 
 class customGate extends gate {
-  constructor(x, y, inpCount, outCount, gateList, name, points) {
+  constructor(x, y, inpCount, outCount, circuit, name, points) {
     super(x, y, inpCount, outCount);
-    this.gates = gateList;
+    this.circuit = circuit;
     this.name = name;
     this.width = name.length * 10 + 40;
 
@@ -107,7 +107,7 @@ class customGate extends gate {
       });
     });
 
-    this.gates.forEach((gate) => {
+    this.circuit.forEach((gate) => {
       gate.update();
     });
 
@@ -229,6 +229,7 @@ class inputPoint extends connectionPoint {
 
   connect(connection) {
     this.connection = connection;
+    connection.end = this;
   }
 
   disconnect() {

@@ -13,6 +13,8 @@ let snapable = false;
 
 let inputBoxCount = 2;
 let outputBoxCount = 1;
+let maxBoxCount = 9;
+let minBoxCount = 1;
 
 let GATES = [];
 let INPUTBOXES = [];
@@ -200,7 +202,6 @@ function onMouseUp(event) {
       //temp replace
       // let replace = snapable.connection != null;
       snapable.connect(tempSelection.connections[currentConLineIndex]);
-      tempSelection.connections[currentConLineIndex].end = snapable;
       // if (replace) {
       //   remove(snapable.connection, snapable.connection.start.connections);
       //   snapable.disconnect();
@@ -214,20 +215,18 @@ function onMouseUp(event) {
 }
 
 function addBox(event) {
-  //max = 5
   let button = event.target;
   let type = button.getAttribute("data-type");
-  if (type == 0 && inputBoxCount < 5) inputBoxCount++;
-  else if (type == 1 && outputBoxCount < 5) outputBoxCount++;
+  if (type == 0 && inputBoxCount < maxBoxCount) inputBoxCount++;
+  else if (type == 1 && outputBoxCount < maxBoxCount) outputBoxCount++;
   createBoolBox();
 }
 
 function removeBox(event) {
-  //min = 1
   let button = event.target;
   let type = button.getAttribute("data-type");
-  if (type == 0 && inputBoxCount > 1) inputBoxCount--;
-  else if (type == 1 && outputBoxCount > 1) outputBoxCount--;
+  if (type == 0 && inputBoxCount > minBoxCount) inputBoxCount--;
+  else if (type == 1 && outputBoxCount > minBoxCount) outputBoxCount--;
   createBoolBox();
 }
 
@@ -266,30 +265,114 @@ function spawn(event) {
       index = GATES.push(new XOR(event.pageX, event.pageY)) - 1;
       break;
     default:
+      gateData = getGateData();
       index =
         GATES.push(
           new customGate(
             event.pageX,
             event.pageY,
-            customGateData.inputCount,
-            customGateData.outputCount,
-            customGateData.gates,
-            customGateData.name,
-            customGateData.point
+            gateData.inCount,
+            gateData.outCount,
+            gateData.circuit,
+            gateData.name,
+            gateData.points
           )
         ) - 1;
   }
-  console.log(GATES[index]);
   currentSelectedGate = tempSelection = GATES[index];
+}
+
+function getGateData() {
+  let circuit = getCircuit();
+  let inputCount = circuit.points.input.length;
+  let outputCount = circuit.points.output.length;
+
+  return {
+    inCount: inputCount,
+    outCount: outputCount,
+    circuit: circuit.circuit,
+    name: "HELLO",
+    points: circuit.points,
+  };
+}
+
+var list = ["NOT", "OR", "OR"];
+var obj = [
+  { input: [0], output: [[[2, 0]]] },
+  { input: [1, 2], output: [[[2, 1]]] },
+  { input: [null], output: [[[0]]] },
+];
+
+function getCircuit() {
+  let ob = obj;
+  let gate = list;
+  let circuit = [];
+  let points = { input: [[]], output: [] };
+  gate.forEach((g, index) => {
+    gt = createGate(g);
+    ob[index].output.forEach((con, i) => {
+      con.forEach((line) => {
+        if (line.length == 1) {
+        } //set output box
+        else {
+          gt.output[i].connections.push(new connectionLine(gt.output[i]));
+        }
+      });
+    });
+    circuit.push(gt);
+  });
+
+  circuit.forEach((gt, index) => {
+    ob[index].output.forEach((con, i) => {
+      con.forEach((line, j) => {
+        if (line.length == 2) {
+          circuit[line[0]].input[line[1]].connect(gt.output[i].connections[j]);
+        } else {
+          points.output[line[0]] = gt.output[i];
+        }
+      });
+    });
+    ob[index].input.forEach((inp, i) => {
+      if (inp != null) {
+        if (!points.input[inp]) points.input[inp] = [];
+        points.input[inp].push(gt.input[i]);
+      }
+    });
+  });
+  console.log(points);
+  return { circuit: circuit, points: points };
+}
+
+function createGate(name, x = 100, y = 100) {
+  switch (name) {
+    case "AND":
+      return new AND(x, y);
+      break;
+    case "OR":
+      return new OR(x, y);
+      break;
+    case "NOT":
+      return new NOT(x, y);
+      break;
+    case "NAND":
+      return new NAND(x, y);
+      break;
+    case "NOR":
+      return new NOR(x, y);
+      break;
+    case "XOR":
+      return new XOR(x, y);
+      break;
+  }
 }
 
 function newGate() {
   customGateData = {
-    inputCount: 0,
-    outputCount: 0,
-    gates: [...GATES],
+    inCount: 0,
+    outCount: 0,
+    circuit: [...GATES],
     name: "NEW",
-    point: { input: [], output: [] },
+    points: { input: [], output: [] },
   };
   //getting input side points
   for (let i = 0; i < INPUTBOXES.length; i++) {
@@ -299,17 +382,17 @@ function newGate() {
     box.connection.connections.forEach((con) => {
       pointList.push(con.end);
     });
-    customGateData.point.input.push(pointList);
+    customGateData.points.input.push(pointList);
   }
   //getting output side points
   for (let i = 0; i < OUTPUTBOXES.length; i++) {
     let box = OUTPUTBOXES[i];
     if (!box.connection.connection) continue;
-    customGateData.point.output.push(box.connection.connection.start);
+    customGateData.points.output.push(box.connection.connection.start);
   }
 
-  customGateData.inputCount = customGateData.point.input.length;
-  customGateData.outputCount = customGateData.point.output.length;
+  customGateData.inCount = customGateData.points.input.length;
+  customGateData.outCount = customGateData.points.output.length;
   createGateBtn(customGateData.name);
   //clearing
   GATES = [];
@@ -336,3 +419,5 @@ main();
 
 // 3/8/2022
 // Aswin-Koroth
+//GATES[0].circuit[0].output[0].value = true
+//GATES[0].circuit[0].output[0].connections[0].end.connection
