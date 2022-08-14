@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <title>Logic Canvas</title>
-    <link rel="stylesheet" href="style1.css" />
+    <link rel="stylesheet" href="style.css" />
   </head>
   <body>
     <div class="container">
@@ -18,20 +18,27 @@
       </div>
     </div>
     <div class="buttons">
-      <div class="btn gate" data-name="AND">AND</div>
-      <div class="btn gate" data-name="OR">OR</div>
-      <div class="btn gate" data-name="NOT">NOT</div>
-      <div class="btn gate" data-name="NAND">NAND</div>
-      <div class="btn gate" data-name="NOR">NOR</div>
-      <div class="btn gate" data-name="XOR">XOR</div>
-    </div>
-    <div class="buttons">
-      <div class="btn dlt" onclick="deleteGate(currentSelectedGate)">
-        DELETE
+      <div class="group">
+        <div class="btn dlt" onclick="addCustomGate()">CREATE</div>
+        <div class="btn dlt" onclick="deleteGate(currentSelectedGate)">
+          DELETE
+        </div>
       </div>
+      <div class="group">
+        <div class="btn gate" data-name="AND">AND</div>
+        <div class="btn gate" data-name="OR">OR</div>
+        <div class="btn gate" data-name="NOT">NOT</div>
+        <div class="btn gate" data-name="NAND">NAND</div>
+        <div class="btn gate" data-name="NOR">NOR</div>
+        <div class="btn gate" data-name="XOR">XOR</div>
+      </div>
+      <div class="group custom"></div>
     </div>
 
+    <!-- <div class="buttons custom"></div> -->
+
     <script src="utils.js"></script>
+    <script src="rawData.js"></script>
     <script src="objects.js"></script>
     <script src="main.js"></script>
   </body>
