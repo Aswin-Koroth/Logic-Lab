@@ -13,45 +13,66 @@ body {
 
 .canvas {
   background: #222831;
+  margin-top: 0.8em;
 }
 .container {
   display: flex;
   justify-content: center;
   align-items: center;
 }
-.gate {
-  background: #5a189a;
-}
 
 .btn {
   color: #cbf3f0;
   width: 70px;
-  height: 40px;
+  height: fit-content;
   line-height: 40px;
   text-align: center;
+  user-select: none;
   border-radius: 2px;
-  margin: 0.5em;
+  margin: 0.3em;
   cursor: pointer;
+  font-size: 0.85em;
   font-weight: bold;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.gate {
+  width: fit-content;
+  padding: 0 0.5em 0 0.5em;
+  background: #5a189a;
 }
 .dlt {
   background: #d02224;
 }
 .add {
   background: #399c30;
-  width: 40px;
+  width: 30px;
+  height: 30px;
   font-size: 0.9em;
 }
 .remove {
   background: #d02224;
-  width: 40px;
+  width: 30px;
+  height: 30px;
   font-size: 0.9em;
 }
 
 .buttons {
-  margin-bottom: 0.4em;
+  margin: 0 50px 0.4em 50px;
   display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.group {
+  display: flex;
+  flex-wrap: wrap;
   justify-content: center;
   align-items: center;
-  user-select: none;
+  margin-right: 2em;
+}
+
+.buttons .group:last-child {
+  margin-right: 0;
 }
