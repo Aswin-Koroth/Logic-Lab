@@ -1,22 +1,27 @@
 //LOGIC SIM V2.0
-let canvas = document.querySelector(".canvas"),
+const canvas = document.querySelector(".canvas"),
   ctx = canvas.getContext("2d");
 
-let gateButtons = document.querySelectorAll(".gate");
-let addButton = document.querySelectorAll(".add");
-let removeButton = document.querySelectorAll(".remove");
+const gateButtons = document.querySelectorAll(".gate");
+const addButton = document.querySelectorAll(".add");
+const removeButton = document.querySelectorAll(".remove");
+
+const loadToMemory = false;
 
 let tempSelection = null;
 let currentConLineIndex = null;
 let currentSelectedGate = null;
 let snapable = false;
 
-let defaultGateInputCount = 2;
+const defaultGateInputCount = 2;
+const defaultBoxPackingCount = 13;
+const defaultInputBoxCount = 2;
+const defaultOutputBoxCount = 2;
 
-let inputBoxCount = 2;
-let outputBoxCount = 1;
-let maxBoxCount = 10;
-let minBoxCount = 1;
+let currentInputBoxCount = defaultInputBoxCount;
+let currentOutputBoxCount = defaultOutputBoxCount;
+const maxBoxCount = 14;
+const minBoxCount = 1;
 
 let GATES = [];
 let INPUTBOXES = [];
@@ -30,39 +35,50 @@ function main() {
 }
 
 function createCustomGateButtons() {
+  if (loadToMemory) loadGates();
   let buttons = Object.keys(localStorage);
   buttons.forEach((btn) => createGateBtn(btn));
 }
 
 function createBoolBox() {
-  let fac = canvas.height * (20 / 100); //20% of canvas.height
+  let r = 20;
   //INPUTS
-  if (INPUTBOXES[inputBoxCount] !== undefined) {
-    INPUTBOXES[inputBoxCount].connection.disconnect();
+  if (INPUTBOXES[currentInputBoxCount] !== undefined) {
+    INPUTBOXES[currentInputBoxCount].connection.disconnect();
     INPUTBOXES.pop();
   }
-  for (let i = 0; i < inputBoxCount; i++) {
+  for (let i = 0; i < currentInputBoxCount; i++) {
+    let fac = (defaultBoxPackingCount - currentInputBoxCount) * r;
     let x = 40;
-    let y = lerp(fac, canvas.height - fac, (i + 1) / (inputBoxCount + 1));
+    let y = lerp(
+      fac,
+      canvas.height - fac,
+      (i + 1) / (currentInputBoxCount + 1)
+    );
     if (INPUTBOXES[i] === undefined) INPUTBOXES.push(new inputBox(x, y, i));
     else INPUTBOXES[i].position.y = y;
   }
   //OUTPUTS
-  if (OUTPUTBOXES[outputBoxCount] !== undefined) {
-    OUTPUTBOXES[outputBoxCount].connection.disconnect();
+  if (OUTPUTBOXES[currentOutputBoxCount] !== undefined) {
+    OUTPUTBOXES[currentOutputBoxCount].connection.disconnect();
     OUTPUTBOXES.pop();
   }
-  for (let i = 0; i < outputBoxCount; i++) {
+  for (let i = 0; i < currentOutputBoxCount; i++) {
+    let fac = (defaultBoxPackingCount - currentOutputBoxCount) * r;
     let x = canvas.width - 40;
-    let y = lerp(fac, canvas.height - fac, (i + 1) / (outputBoxCount + 1));
+    let y = lerp(
+      fac,
+      canvas.height - fac,
+      (i + 1) / (currentOutputBoxCount + 1)
+    );
     if (OUTPUTBOXES[i] === undefined) OUTPUTBOXES.push(new outputBox(x, y, i));
     else OUTPUTBOXES[i].position.y = y;
   }
 }
 
 function updateCanvas() {
-  canvas.width = window.innerWidth - 100;
-  canvas.height = window.innerHeight - 150;
+  canvas.width = window.innerWidth - 80;
+  canvas.height = window.innerHeight - 100;
   //boolbox
   [...INPUTBOXES, ...OUTPUTBOXES].forEach((box) => box.update(ctx));
   GATES.forEach((gate) => {
@@ -224,16 +240,18 @@ function onMouseUp(event) {
 function addBox(event) {
   let button = event.target;
   let type = button.getAttribute("data-type");
-  if (type == 0 && inputBoxCount < maxBoxCount) inputBoxCount++;
-  else if (type == 1 && outputBoxCount < maxBoxCount) outputBoxCount++;
+  if (type == 0 && currentInputBoxCount < maxBoxCount) currentInputBoxCount++;
+  else if (type == 1 && currentOutputBoxCount < maxBoxCount)
+    currentOutputBoxCount++;
   createBoolBox();
 }
 
 function removeBox(event) {
   let button = event.target;
   let type = button.getAttribute("data-type");
-  if (type == 0 && inputBoxCount > minBoxCount) inputBoxCount--;
-  else if (type == 1 && outputBoxCount > minBoxCount) outputBoxCount--;
+  if (type == 0 && currentInputBoxCount > minBoxCount) currentInputBoxCount--;
+  else if (type == 1 && currentOutputBoxCount > minBoxCount)
+    currentOutputBoxCount--;
   createBoolBox();
 }
 
@@ -330,8 +348,27 @@ function createGate(name, x = 0, y = 0) {
   }
 }
 
+function addCustomGate() {
+  let isAlert = false;
+  for (let i = 0; i < INPUTBOXES.length; i++) {
+    if (!INPUTBOXES[i].connection.connections[0]) isAlert = true;
+  }
+  if (!isAlert)
+    for (let i = 0; i < OUTPUTBOXES.length; i++) {
+      if (!OUTPUTBOXES[i].connection.connection) isAlert = true;
+    }
+  if (isAlert) alert("Some Input/Output connections are empty");
+  else getRawData();
+}
+
 function getRawData() {
   let name = prompt("Name");
+  if (name == "") {
+    alert("Name is empty");
+    getRawData();
+    return;
+  } else if (name == null) return;
+  console.log(name);
   let gates = GATES.map((g) => g.name);
   let rawData = { gates: gates, connections: [] };
 
@@ -339,6 +376,7 @@ function getRawData() {
     let input = [];
     let output = [];
     gt.input.forEach((inp) => {
+      if (!inp.connection) return;
       let parent = inp.connection.start.parent;
       if (parent.isGate) input.push(null);
       else input.push(parent.index);
