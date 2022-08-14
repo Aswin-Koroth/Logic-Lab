@@ -12,6 +12,7 @@ class gate {
     this.offset = { x: this.width / 2, y: this.height / 2 };
     this.color = "#613dc1"; //temp
     this.isSelected = false;
+    this.markedForDelete = false;
 
     //Logic Properties
     this.input = [];

@@ -76,15 +76,33 @@ function createBoolBox() {
   }
 }
 
-function updateCanvas() {
+function updateCanvas(timestamp) {
   canvas.width = window.innerWidth - 80;
   canvas.height = window.innerHeight - 100;
+  //Mark gates for delete
+  if (parseInt(timestamp) % 1000 == 0 && timestamp != 0) {
+    markForDelete();
+  }
   //boolbox
   [...INPUTBOXES, ...OUTPUTBOXES].forEach((box) => box.update(ctx));
+  //Gates
   GATES.forEach((gate) => {
+    if (gate.markedForDelete) remove(gate, GATES);
     gate.update(ctx, gate === currentSelectedGate);
   });
   requestAnimationFrame(updateCanvas);
+}
+
+function markForDelete() {
+  GATES.forEach((gate) => {
+    if (
+      gate.position.x >= canvas.width ||
+      gate.position.x + gate.width <= 0 ||
+      gate.position.y >= canvas.height ||
+      gate.position.y + gate.height <= 0
+    )
+      gate.markedForDelete = true;
+  });
 }
 
 function isInCircle(event, circleX, circleY, radius) {
