@@ -197,6 +197,8 @@ class connectionPoint {
   constructor(x, y, parent) {
     this.position = { x: x, y: y };
     this.value = false;
+
+    this.hover = false;
     this.parent = { isGate: parent.isGate, index: parent.index };
   }
 
@@ -215,6 +217,30 @@ class connectionPoint {
     context.fill();
     context.stroke();
     this.drawConLine(context);
+
+    if (this.hover) {
+      //label frame
+      context.beginPath();
+      context.lineWidth = 1; //temp
+      ctx.globalAlpha = 0.7;
+      context.rect(
+        this.labelLoc.x,
+        this.labelLoc.y,
+        this.label.width,
+        this.label.height
+      );
+      context.fillStyle = "black";
+      context.fill();
+      ctx.globalAlpha = 1;
+      //Text
+      context.fillStyle = "white"; //temp
+      context.font = "1em Poppins"; //temp
+      context.fillText(
+        this.label.text,
+        this.labelLoc.x + this.label.width / 2,
+        this.labelLoc.y + this.label.height / 2 + 1
+      );
+    }
   }
 }
 
@@ -223,12 +249,25 @@ class inputPoint extends connectionPoint {
   constructor(x, y, parent) {
     super(x, y, parent);
     this.connection = null;
+
+    this.label = {
+      width: 100,
+      height: 20,
+      text: "INP " + parent.index,
+    };
+    this.labelLoc = {
+      x: this.position.x - this.label.width - 10,
+      y: this.position.y - this.label.height / 2,
+    };
     connectionPoints.input.push(this);
   }
 
   update(context) {
     if (this.connection) this.value = this.connection.start.value;
     else this.value = false;
+    //label position update
+    this.labelLoc.x = this.position.x - this.label.width - 10;
+    this.labelLoc.y = this.position.y - this.label.height / 2;
     this.draw(context);
   }
 
@@ -252,9 +291,22 @@ class outputPoint extends connectionPoint {
   constructor(x, y, parent) {
     super(x, y, parent);
     this.connections = [];
+
+    this.label = {
+      width: 100,
+      height: 20,
+      text: "OUT " + parent.index,
+    };
+    this.labelLoc = {
+      x: this.position.x + 10,
+      y: this.position.y - this.label.height / 2,
+    };
+
     connectionPoints.output.push(this);
   }
   update(context) {
+    this.labelLoc.x = this.position.x + 10;
+    this.labelLoc.y = this.position.y - this.label.height / 2;
     this.draw(context);
   }
 
@@ -340,6 +392,9 @@ class inputBox extends boolBox {
     this.connection.position.x = this.position.x + boolBox.radius;
     this.connection.position.y = this.position.y;
     this.draw(context);
+  }
+  toggle() {
+    this.connection.value = !this.connection.value;
   }
 }
 

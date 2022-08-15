@@ -13,6 +13,8 @@ let currentConLineIndex = null;
 let currentSelectedGate = null;
 let snapable = false;
 
+let mouseButtons = [];
+
 const defaultGateInputCount = 2;
 const defaultInputBoxCount = 2;
 const defaultOutputBoxCount = 2;
@@ -80,7 +82,7 @@ function createBoolBox() {
 function updateCanvas(timestamp) {
   canvas.width = window.innerWidth - 80;
   canvas.height = window.innerHeight - 100;
-  //Mark gates for delete
+  //Mark gates for delete if out of frame
   if (parseInt(timestamp) % 1000 == 0 && timestamp != 0) {
     markForDelete();
   }
@@ -88,7 +90,7 @@ function updateCanvas(timestamp) {
   [...INPUTBOXES, ...OUTPUTBOXES].forEach((box) => box.update(ctx));
   //Gates
   GATES.forEach((gate) => {
-    if (gate.markedForDelete) remove(gate, GATES);
+    if (gate.markedForDelete) deleteGate(gate);
     gate.update(ctx, gate === currentSelectedGate);
   });
   requestAnimationFrame(updateCanvas);
@@ -183,12 +185,12 @@ function setEventListeners() {
 }
 
 function onRClick(event) {
-  console.log(event.button);
   let point = getCurrentSelection(event);
-  if (point != null) point.disconnect();
+  if (point instanceof connectionPoint) if (point != null) point.disconnect();
 }
 
 function onClick(event) {
+  console.log("hello");
   //check inputboxes
   for (let i = INPUTBOXES.length - 1; i >= 0; i--) {
     let box = INPUTBOXES[i];
@@ -199,11 +201,12 @@ function onClick(event) {
       boolBox.radius
     );
     if (isIn) {
-      box.connection.value = !box.connection.value;
+      box.toggle();
     }
   }
 }
 function onMouseDown(event) {
+  mouseButtons.push(event.button); //adding mouse button to list
   if (event.button === 0) {
     tempSelection = getCurrentSelection(event);
     if (tempSelection instanceof gate) {
@@ -220,7 +223,7 @@ function onMouseDown(event) {
 }
 
 function onMouseMove(event) {
-  if (event.button === 0) {
+  if (mouseButtons.includes(0)) {
     if (tempSelection instanceof gate) {
       //Moving Gate
       tempSelection.position.x = event.offsetX - tempSelection.offset.x;
@@ -241,24 +244,40 @@ function onMouseMove(event) {
       }
     }
   }
+  // show label on hover
+  [...connectionPoints.input, ...connectionPoints.output].forEach((con) => {
+    let isIn = isInCircle(
+      event,
+      con.position.x,
+      con.position.y,
+      connectionPoint.radius
+    );
+    if (isIn) {
+      con.hover = true;
+    } else con.hover = false;
+  });
 }
 
 function onMouseUp(event) {
-  if (tempSelection instanceof outputPoint) {
-    if (snapable && snapable.connection == null) {
-      //temp replace
-      // let replace = snapable.connection != null;
-      snapable.connect(tempSelection.connections[currentConLineIndex]);
-      // if (replace) {
-      //   remove(snapable.connection, snapable.connection.start.connections);
-      //   snapable.disconnect();
-      // }
-      snapable = false;
-    } else {
-      tempSelection.disconnect(currentConLineIndex);
+  if (event.button === 0) {
+    if (tempSelection instanceof outputPoint) {
+      if (snapable && snapable.connection == null) {
+        console.log(snapable);
+        //temp replace
+        // let replace = snapable.connection != null;
+        snapable.connect(tempSelection.connections[currentConLineIndex]);
+        // if (replace) {
+        //   remove(snapable.connection, snapable.connection.start.connections);
+        //   snapable.disconnect();
+        // }
+        snapable = false;
+      } else {
+        tempSelection.disconnect(currentConLineIndex);
+      }
     }
+    tempSelection = null;
   }
-  tempSelection = null;
+  remove(event.button, mouseButtons); //removing mouse button from list
 }
 
 function addBox(event) {
@@ -291,6 +310,7 @@ function createGateBtn(label) {
 }
 
 function spawn(event) {
+  mouseButtons.push(event.button);
   let button = event.target;
   let fun = button.getAttribute("data-name");
   let index = GATES.push(createGate(fun, event.pageX, event.pageY)) - 1;
