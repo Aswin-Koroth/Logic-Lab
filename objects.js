@@ -196,7 +196,6 @@ class connectionPoint {
   static radius = 7;
   constructor(x, y, parent) {
     this.position = { x: x, y: y };
-    this.radius = 7; //temp
     this.value = false;
     this.parent = { isGate: parent.isGate, index: parent.index };
   }
@@ -295,9 +294,9 @@ class connectionLine {
 
 //Value Box
 class boolBox {
+  static radius = 20;
   constructor(x, y) {
     this.position = { x: x, y: y };
-    this.radius = 20;
   }
 
   draw(context) {
@@ -305,7 +304,13 @@ class boolBox {
     context.beginPath();
     context.strokeStyle = "black";
     ctx.lineWidth = 1;
-    context.arc(this.position.x, this.position.y, this.radius, 0, 2 * Math.PI);
+    context.arc(
+      this.position.x,
+      this.position.y,
+      boolBox.radius,
+      0,
+      2 * Math.PI
+    );
     context.fillStyle = getColor(this.connection.value);
     context.fill();
     context.stroke();
@@ -325,14 +330,14 @@ class inputBox extends boolBox {
   constructor(x, y, index) {
     super(x, y);
     this.connection = new outputPoint(
-      this.position.x + this.radius,
+      this.position.x + boolBox.radius,
       this.position.y,
       { isGate: false, index: index }
     );
   }
   update(context) {
     // updating connection point position
-    this.connection.position.x = this.position.x + this.radius;
+    this.connection.position.x = this.position.x + boolBox.radius;
     this.connection.position.y = this.position.y;
     this.draw(context);
   }
@@ -342,14 +347,14 @@ class outputBox extends boolBox {
   constructor(x, y, index) {
     super(x, y);
     this.connection = new inputPoint(
-      this.position.x - this.radius,
+      this.position.x - boolBox.radius,
       this.position.y,
       { isGate: false, index: index }
     );
   }
   update(context) {
     this.position.x = context.canvas.width - 40; //temp
-    this.connection.position.x = this.position.x - this.radius;
+    this.connection.position.x = this.position.x - boolBox.radius;
     this.connection.position.y = this.position.y;
     this.draw(context);
   }

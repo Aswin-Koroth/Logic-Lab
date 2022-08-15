@@ -39,6 +39,7 @@ body {
 }
 .gate {
   width: fit-content;
+  min-width: 40px;
   padding: 0 0.5em 0 0.5em;
   background: #5a189a;
 }

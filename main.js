@@ -6,7 +6,7 @@ const gateButtons = document.querySelectorAll(".gate");
 const addButton = document.querySelectorAll(".add");
 const removeButton = document.querySelectorAll(".remove");
 
-const loadToMemory = false;
+const loadToMemory = true;
 
 let tempSelection = null;
 let currentConLineIndex = null;
@@ -14,9 +14,9 @@ let currentSelectedGate = null;
 let snapable = false;
 
 const defaultGateInputCount = 2;
-const defaultBoxPackingCount = 13;
 const defaultInputBoxCount = 2;
 const defaultOutputBoxCount = 2;
+let defaultBoxPackingCount = 13; //changes with canvas height
 
 let currentInputBoxCount = defaultInputBoxCount;
 let currentOutputBoxCount = defaultOutputBoxCount;
@@ -41,14 +41,15 @@ function createCustomGateButtons() {
 }
 
 function createBoolBox() {
-  let r = 20;
+  let radius = boolBox.radius;
+  defaultBoxPackingCount = Math.round(canvas.height / (2 * radius) - 1);
   //INPUTS
   if (INPUTBOXES[currentInputBoxCount] !== undefined) {
     INPUTBOXES[currentInputBoxCount].connection.disconnect();
     INPUTBOXES.pop();
   }
   for (let i = 0; i < currentInputBoxCount; i++) {
-    let fac = (defaultBoxPackingCount - currentInputBoxCount) * r;
+    let fac = (defaultBoxPackingCount - currentInputBoxCount) * radius;
     let x = 40;
     let y = lerp(
       fac,
@@ -64,7 +65,7 @@ function createBoolBox() {
     OUTPUTBOXES.pop();
   }
   for (let i = 0; i < currentOutputBoxCount; i++) {
-    let fac = (defaultBoxPackingCount - currentOutputBoxCount) * r;
+    let fac = (defaultBoxPackingCount - currentOutputBoxCount) * radius;
     let x = canvas.width - 40;
     let y = lerp(
       fac,
@@ -191,7 +192,12 @@ function onClick(event) {
   //check inputboxes
   for (let i = INPUTBOXES.length - 1; i >= 0; i--) {
     let box = INPUTBOXES[i];
-    let isIn = isInCircle(event, box.position.x, box.position.y, box.radius);
+    let isIn = isInCircle(
+      event,
+      box.position.x,
+      box.position.y,
+      boolBox.radius
+    );
     if (isIn) {
       box.connection.value = !box.connection.value;
     }
