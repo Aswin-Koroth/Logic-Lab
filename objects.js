@@ -218,6 +218,9 @@ class connectionPoint {
     context.stroke();
     this.drawConLine(context);
 
+    // this.drawLabel(context);
+  }
+  drawLabel(context) {
     if (this.hover) {
       //label frame
       context.beginPath();
