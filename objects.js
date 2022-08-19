@@ -5,7 +5,13 @@ function getColor(bool) {
 }
 
 class gate {
-  constructor(x, y, inpCount, outCount = 1) {
+  constructor(
+    x,
+    y,
+    inpCount,
+    outCount = 1,
+    conLabel = { input: [], output: [] }
+  ) {
     this.position = { x: x, y: y };
     this.height = inpCount * (connectionPoint.radius * 2) + 20;
     this.width = 80; //temp
@@ -13,6 +19,7 @@ class gate {
     this.color = "#613dc1"; //temp
     this.isSelected = false;
     this.markedForDelete = false;
+    this.conLabel = conLabel;
 
     //Logic Properties
     this.input = [];
@@ -21,12 +28,24 @@ class gate {
     this.outputCount = outCount;
     for (let i = 0; i < this.inputCount; i++) {
       let loc = this.#getConPointLoc(0, i); //0 - ID for input
-      this.input.push(new inputPoint(loc.x, loc.y, { isGate: this, index: i }));
+      this.input.push(
+        new inputPoint(
+          loc.x,
+          loc.y,
+          { isGate: this, index: i },
+          this.conLabel.input[i]
+        )
+      );
     }
     for (let i = 0; i < this.outputCount; i++) {
       let loc = this.#getConPointLoc(1, i); //1 - ID for output
       this.output.push(
-        new outputPoint(loc.x, loc.y, { isGate: this, index: i })
+        new outputPoint(
+          loc.x,
+          loc.y,
+          { isGate: this, index: i },
+          this.conLabel.output[i]
+        )
       );
     }
   }
@@ -93,8 +112,8 @@ class gate {
 }
 
 class customGate extends gate {
-  constructor(x, y, inpCount, outCount, circuit, name, points) {
-    super(x, y, inpCount, outCount);
+  constructor(x, y, inpCount, outCount, circuit, name, points, conLabel) {
+    super(x, y, inpCount, outCount, conLabel);
     this.circuit = circuit;
     this.name = name;
     this.width = name.length * 10 + 40;
@@ -249,14 +268,14 @@ class connectionPoint {
 
 class inputPoint extends connectionPoint {
   static snapDistance = 12;
-  constructor(x, y, parent) {
+  constructor(x, y, parent, label = "INP " + parent.index) {
     super(x, y, parent);
     this.connection = null;
 
     this.label = {
       width: 100,
       height: 20,
-      text: "INP " + parent.index,
+      text: label,
     };
     this.labelLoc = {
       x: this.position.x - this.label.width - 10,
@@ -291,14 +310,14 @@ class inputPoint extends connectionPoint {
 }
 
 class outputPoint extends connectionPoint {
-  constructor(x, y, parent) {
+  constructor(x, y, parent, label = "OUT " + parent.index) {
     super(x, y, parent);
     this.connections = [];
 
     this.label = {
       width: 100,
       height: 20,
-      text: "OUT " + parent.index,
+      text: label,
     };
     this.labelLoc = {
       x: this.position.x + 10,
@@ -387,7 +406,8 @@ class inputBox extends boolBox {
     this.connection = new outputPoint(
       this.position.x + boolBox.radius,
       this.position.y,
-      { isGate: false, index: index }
+      { isGate: false, index: index },
+      undefined
     );
   }
   update(context) {
@@ -407,7 +427,8 @@ class outputBox extends boolBox {
     this.connection = new inputPoint(
       this.position.x - boolBox.radius,
       this.position.y,
-      { isGate: false, index: index }
+      { isGate: false, index: index },
+      undefined
     );
   }
   update(context) {

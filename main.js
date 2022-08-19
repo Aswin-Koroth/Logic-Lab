@@ -335,6 +335,7 @@ function spawn(event) {
 
 function getGateData(name) {
   let rawData = JSON.parse(localStorage.getItem(name));
+  let conLabel = rawData.label;
   let circuit = getCircuit(rawData);
   let inputCount = circuit.points.input.length;
   let outputCount = circuit.points.output.length;
@@ -342,6 +343,7 @@ function getGateData(name) {
   return {
     inCount: inputCount,
     outCount: outputCount,
+    conLabel: conLabel,
     circuit: circuit.circuit,
     name: name,
     points: circuit.points,
@@ -403,7 +405,8 @@ function createGate(name, x = 0, y = 0) {
         gateData.outCount,
         gateData.circuit,
         gateData.name,
-        gateData.points
+        gateData.points,
+        gateData.conLabel
       );
   }
 }
