@@ -1,7 +1,11 @@
+function addToStorage(name, rawData) {
+  let storedGates = localStorage.gates ? JSON.parse(localStorage.gates) : {};
+  storedGates[name] = rawData;
+  localStorage.setItem("gates", JSON.stringify(storedGates));
+}
+
 function loadGates() {
-  GATELIST.forEach((gate) =>
-    localStorage.setItem(gate.name, JSON.stringify(gate))
-  );
+  GATELIST.forEach((gate) => addToStorage(gate.name, gate));
 }
 
 const GATELIST = [

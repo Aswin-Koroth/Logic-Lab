@@ -38,8 +38,8 @@ function main() {
 
 function createCustomGateButtons() {
   if (loadToMemory) loadGates();
-  let buttons = Object.keys(localStorage);
-  buttons.forEach((btn) => createGateBtn(btn));
+  let gateData = JSON.parse(localStorage.gates);
+  Object.keys(gateData).forEach((gate) => createGateBtn(gate));
 }
 
 function createBoolBox() {
@@ -334,7 +334,7 @@ function spawn(event) {
 }
 
 function getGateData(name) {
-  let rawData = JSON.parse(localStorage.getItem(name));
+  let rawData = JSON.parse(localStorage.gates)[name];
   let conLabel = rawData.label;
   let circuit = getCircuit(rawData);
   let inputCount = circuit.points.input.length;
@@ -470,7 +470,7 @@ function getRawData() {
     rawData.label.output.push(box.connection.label.text)
   );
   //saving gate data in localstorage
-  localStorage.setItem(name, JSON.stringify(rawData));
+  addToStorage(name, rawData);
 
   createGateBtn(name);
   //clearing
