@@ -13,6 +13,8 @@ let currentConLineIndex = null;
 let currentSelectedGate = null;
 let snapable = false;
 
+let pressedKeys = [];
+
 const defaultGateInputCount = 2;
 const defaultInputBoxCount = 2;
 const defaultOutputBoxCount = 2;
@@ -36,9 +38,8 @@ function main() {
 
 function createCustomGateButtons() {
   if (loadToMemory) loadGates();
-  storedGates.forEach((gate) => createGateBtn(gate));
-  // let buttons = Object.keys(localStorage);
-  // buttons.forEach((btn) => createGateBtn(btn));
+  let buttons = Object.keys(localStorage);
+  buttons.forEach((btn) => createGateBtn(btn));
 }
 
 function createBoolBox() {
@@ -81,7 +82,7 @@ function createBoolBox() {
 function updateCanvas(timestamp) {
   canvas.width = window.innerWidth - 80;
   canvas.height = window.innerHeight - 100;
-  //Mark gates for delete
+  //Mark gates for delete if out of frame
   if (parseInt(timestamp) % 1000 == 0 && timestamp != 0) {
     markForDelete();
   }
@@ -89,9 +90,13 @@ function updateCanvas(timestamp) {
   [...INPUTBOXES, ...OUTPUTBOXES].forEach((box) => box.update(ctx));
   //Gates
   GATES.forEach((gate) => {
-    if (gate.markedForDelete) remove(gate, GATES);
+    if (gate.markedForDelete) deleteGate(gate);
     gate.update(ctx, gate === currentSelectedGate);
   });
+  //labels
+  [...connectionPoints.input, ...connectionPoints.output].forEach((con) =>
+    con.drawLabel(ctx)
+  );
   requestAnimationFrame(updateCanvas);
 }
 
@@ -171,6 +176,8 @@ function setEventListeners() {
   canvas.addEventListener("mousedown", onMouseDown);
   canvas.addEventListener("mousemove", onMouseMove);
   addEventListener("mouseup", onMouseUp);
+  addEventListener("keydown", keyPressed);
+  addEventListener("keyup", keyRelease);
 
   addButton.forEach((button) => {
     button.addEventListener("click", addBox);
@@ -183,10 +190,21 @@ function setEventListeners() {
   });
 }
 
+function keyPressed(event) {
+  if (event.key == "Control" && !pressedKeys.includes("Control"))
+    pressedKeys.push(event.key);
+}
+
+function keyRelease(event) {
+  console.log(event.key);
+  if (event.key == "Control") {
+    remove(event.key, pressedKeys);
+  }
+}
+
 function onRClick(event) {
-  console.log(event.button);
   let point = getCurrentSelection(event);
-  if (point != null) point.disconnect();
+  if (point instanceof connectionPoint) if (point != null) point.disconnect();
 }
 
 function onClick(event) {
@@ -200,11 +218,12 @@ function onClick(event) {
       boolBox.radius
     );
     if (isIn) {
-      box.connection.value = !box.connection.value;
+      box.toggle();
     }
   }
 }
 function onMouseDown(event) {
+  pressedKeys.push(event.button); //adding mouse button to list
   if (event.button === 0) {
     tempSelection = getCurrentSelection(event);
     if (tempSelection instanceof gate) {
@@ -221,7 +240,7 @@ function onMouseDown(event) {
 }
 
 function onMouseMove(event) {
-  if (event.button === 0) {
+  if (pressedKeys.includes(0)) {
     if (tempSelection instanceof gate) {
       //Moving Gate
       tempSelection.position.x = event.offsetX - tempSelection.offset.x;
@@ -242,24 +261,39 @@ function onMouseMove(event) {
       }
     }
   }
+  // show label on hover
+  [...connectionPoints.input, ...connectionPoints.output].forEach((con) => {
+    let isIn = isInCircle(
+      event,
+      con.position.x,
+      con.position.y,
+      connectionPoint.radius
+    );
+    if (isIn && pressedKeys.includes("Control")) {
+      con.hover = true;
+    } else con.hover = false;
+  });
 }
 
 function onMouseUp(event) {
-  if (tempSelection instanceof outputPoint) {
-    if (snapable && snapable.connection == null) {
-      //temp replace
-      // let replace = snapable.connection != null;
-      snapable.connect(tempSelection.connections[currentConLineIndex]);
-      // if (replace) {
-      //   remove(snapable.connection, snapable.connection.start.connections);
-      //   snapable.disconnect();
-      // }
-      snapable = false;
-    } else {
-      tempSelection.disconnect(currentConLineIndex);
+  if (event.button === 0) {
+    if (tempSelection instanceof outputPoint) {
+      if (snapable && snapable.connection == null) {
+        //temp replace
+        // let replace = snapable.connection != null;
+        snapable.connect(tempSelection.connections[currentConLineIndex]);
+        // if (replace) {
+        //   remove(snapable.connection, snapable.connection.start.connections);
+        //   snapable.disconnect();
+        // }
+        snapable = false;
+      } else {
+        tempSelection.disconnect(currentConLineIndex);
+      }
     }
+    tempSelection = null;
   }
-  tempSelection = null;
+  remove(event.button, pressedKeys); //removing mouse button from list
 }
 
 function addBox(event) {
@@ -292,6 +326,7 @@ function createGateBtn(label) {
 }
 
 function spawn(event) {
+  pressedKeys.push(event.button);
   let button = event.target;
   let fun = button.getAttribute("data-name");
   let index = GATES.push(createGate(fun, event.pageX, event.pageY)) - 1;
@@ -300,6 +335,7 @@ function spawn(event) {
 
 function getGateData(name) {
   let rawData = JSON.parse(localStorage.getItem(name));
+  let conLabel = rawData.label;
   let circuit = getCircuit(rawData);
   let inputCount = circuit.points.input.length;
   let outputCount = circuit.points.output.length;
@@ -307,6 +343,7 @@ function getGateData(name) {
   return {
     inCount: inputCount,
     outCount: outputCount,
+    conLabel: conLabel,
     circuit: circuit.circuit,
     name: name,
     points: circuit.points,
@@ -368,7 +405,8 @@ function createGate(name, x = 0, y = 0) {
         gateData.outCount,
         gateData.circuit,
         gateData.name,
-        gateData.points
+        gateData.points,
+        gateData.conLabel
       );
   }
 }
@@ -395,7 +433,11 @@ function getRawData() {
   } else if (name == null) return;
   console.log(name);
   let gates = GATES.map((g) => g.name);
-  let rawData = { gates: gates, connections: [] };
+  let rawData = {
+    gates: gates,
+    connections: [],
+    label: { input: [], output: [] },
+  };
 
   GATES.forEach((gt) => {
     let input = [];
@@ -419,9 +461,16 @@ function getRawData() {
     });
     rawData.connections.push({ input: input, output: output });
   });
+  //setting input labels
+  INPUTBOXES.forEach((box) =>
+    rawData.label.input.push(box.connection.label.text)
+  );
+  //setting output labels
+  OUTPUTBOXES.forEach((box) =>
+    rawData.label.output.push(box.connection.label.text)
+  );
   //saving gate data in localstorage
   localStorage.setItem(name, JSON.stringify(rawData));
-  storedGates.push(name);
 
   createGateBtn(name);
   //clearing
