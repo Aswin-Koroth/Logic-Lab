@@ -26,6 +26,10 @@ class gate {
     this.output = [];
     this.inputCount = inpCount;
     this.outputCount = outCount;
+    this.setConnectionPoints();
+  }
+
+  setConnectionPoints() {
     for (let i = 0; i < this.inputCount; i++) {
       let loc = this.#getConPointLoc(0, i); //0 - ID for input
       this.input.push(

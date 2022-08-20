@@ -433,7 +433,11 @@ function getRawData() {
   } else if (name == null) return;
   console.log(name);
   let gates = GATES.map((g) => g.name);
-  let rawData = { gates: gates, connections: [] };
+  let rawData = {
+    gates: gates,
+    connections: [],
+    label: { input: [], output: [] },
+  };
 
   GATES.forEach((gt) => {
     let input = [];
@@ -457,6 +461,14 @@ function getRawData() {
     });
     rawData.connections.push({ input: input, output: output });
   });
+  //setting input labels
+  INPUTBOXES.forEach((box) =>
+    rawData.label.input.push(box.connection.label.text)
+  );
+  //setting output labels
+  OUTPUTBOXES.forEach((box) =>
+    rawData.label.output.push(box.connection.label.text)
+  );
   //saving gate data in localstorage
   localStorage.setItem(name, JSON.stringify(rawData));
 
