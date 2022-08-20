@@ -36,8 +36,9 @@ function main() {
 
 function createCustomGateButtons() {
   if (loadToMemory) loadGates();
-  let buttons = Object.keys(localStorage);
-  buttons.forEach((btn) => createGateBtn(btn));
+  storedGates.forEach((gate) => createGateBtn(gate));
+  // let buttons = Object.keys(localStorage);
+  // buttons.forEach((btn) => createGateBtn(btn));
 }
 
 function createBoolBox() {
@@ -420,6 +421,7 @@ function getRawData() {
   });
   //saving gate data in localstorage
   localStorage.setItem(name, JSON.stringify(rawData));
+  storedGates.push(name);
 
   createGateBtn(name);
   //clearing
