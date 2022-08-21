@@ -5,8 +5,10 @@ const canvas = document.querySelector(".canvas"),
 const gateButtons = document.querySelectorAll(".gate");
 const addButton = document.querySelectorAll(".add");
 const removeButton = document.querySelectorAll(".remove");
+const bg = document.querySelector(".bg");
 
-const loadToMemory = true;
+const loadToMemory = false;
+let paused = false;
 
 let tempSelection = null;
 let currentConLineIndex = null;
@@ -39,8 +41,10 @@ function main() {
 
 function createCustomGateButtons() {
   if (loadToMemory) loadGates();
-  let gateData = JSON.parse(localStorage.gates);
-  Object.keys(gateData).forEach((gate) => createGateBtn(gate));
+  if (localStorage.gates !== undefined) {
+    let gateData = JSON.parse(localStorage.gates);
+    Object.keys(gateData).forEach((gate) => createGateBtn(gate));
+  }
 }
 
 function createBoolBox() {
@@ -197,7 +201,6 @@ function keyPressed(event) {
 }
 
 function keyRelease(event) {
-  console.log(event.keyCode);
   remove(event.keyCode, pressedKeys);
 }
 
@@ -423,18 +426,71 @@ function addCustomGate() {
     for (let i = 0; i < OUTPUTBOXES.length; i++) {
       if (!OUTPUTBOXES[i].connection.connection) isAlert = true;
     }
-  if (isAlert) alert("Some Input/Output connections are empty");
-  else getRawData();
+  if (isAlert) showAlert("Some Input/Output connections are empty.");
+  else showPrompt("TYPE NAME", saveGateGroup);
 }
 
-function getRawData() {
-  let name = prompt("Name");
-  if (name == "") {
-    alert("Name is empty");
-    getRawData();
-    return;
-  } else if (name == null) return;
-  console.log(name);
+function showAlert(alert) {
+  const alertbox = document.querySelector(".alertbox");
+  const cross = document.querySelector(".alertbox .cross");
+  const prompt = document.querySelector(".alertbox .prompt");
+
+  togglePause();
+  prompt.innerText = alert;
+  alertbox.style.display = "block";
+  cross.addEventListener(
+    "click",
+    () => {
+      alertbox.style.display = "none";
+      togglePause();
+    },
+    {
+      once: true,
+    }
+  );
+}
+
+function showPrompt(prompt, func) {
+  const promptBox = document.querySelector(".promptbox");
+  const titleText = document.querySelector(".promptbox .titlebar span");
+  const cross = document.querySelector(".promptbox .cross");
+  const textBox = document.querySelector(".text");
+  const okBtn = document.querySelector(".okbtn");
+  const warningBox = document.querySelector(".warning");
+
+  togglePause();
+  titleText.innerText = prompt;
+  promptBox.style.display = "block";
+  textBox.focus();
+
+  cross.addEventListener(
+    "click",
+    () => {
+      textBox.value = "";
+      promptBox.style.display = "none";
+      warningBox.innerText = "";
+      togglePause();
+    },
+    { once: true }
+  );
+
+  okBtn.addEventListener("click", () => {
+    let name = textBox.value.trim();
+    if (name == "") warningBox.innerText = "Text field is empty.";
+    else {
+      cross.click();
+      func(name);
+    }
+  });
+}
+
+function togglePause() {
+  if (paused) bg.style.display = "none";
+  else bg.style.display = "block";
+  paused = !paused;
+}
+
+function saveGateGroup(name) {
   let gates = GATES.map((g) => g.name);
   let rawData = {
     gates: gates,

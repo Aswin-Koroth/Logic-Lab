@@ -1,10 +1,12 @@
 @import url("https://fonts.googleapis.com/css2?family=Poppins:wght@200&display=swap");
-
-* {
+@import url("https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100;0,200;0,400;0,700;1,600&display=swap");
+*,
+*::before,
+*::after {
   box-sizing: border-box;
   margin: 0;
   padding: 0;
-  font-family: "Poppins";
+  font-family: "Montserrat";
   -webkit-touch-callout: none;
   -webkit-user-select: none;
   -khtml-user-select: none;
@@ -14,7 +16,126 @@
 }
 
 body {
+  width: 100vw;
+  height: 100vh;
   background: #2d3142;
+  position: relative;
+}
+
+.bg {
+  display: none;
+  position: absolute;
+  background-color: rgba(0, 0, 0, 0.5);
+  height: 100%;
+  width: 100%;
+  bottom: 0;
+  z-index: 99;
+}
+
+.promptbox,
+.alertbox {
+  display: none;
+  position: fixed;
+  height: 200px;
+  width: 500px;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  border-radius: 15px;
+  overflow: hidden;
+  background: rgba(200, 211, 217, 0.85);
+  backdrop-filter: blur(6px);
+  z-index: 9999;
+}
+.alertbox {
+  height: 100px;
+}
+.titlebar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 25%;
+  padding: 0 18px;
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(6px);
+}
+
+.titlebar span {
+  color: #3c3c3b;
+  text-align: center;
+  font-weight: 600;
+  letter-spacing: 2px;
+}
+.cross {
+  width: 16px;
+  height: 17px;
+  position: relative;
+  cursor: pointer;
+}
+.cross:hover {
+  height: 20px;
+}
+.cross::after,
+.cross::before {
+  content: "";
+  position: absolute;
+  background-color: #f06825;
+  width: 20%;
+  height: 100%;
+  border-radius: 2px;
+}
+.cross::before {
+  transform: translate(8px) rotate(45deg);
+}
+.cross::after {
+  transform: translate(8px) rotate(-45deg);
+}
+.prompt {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 15%;
+  flex-direction: column;
+  height: 75%;
+}
+.warning {
+  height: 15px;
+  color: #d02224;
+}
+.prompt div:first-child {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.text {
+  background-color: white;
+  border-radius: 9px;
+  width: 400px;
+  height: 40px;
+  border: none;
+  padding: 0.5em;
+}
+.text:focus {
+  outline: none;
+}
+.okbtn {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: #005a77;
+  border-radius: 6px;
+  width: 15%;
+  height: 25%;
+  color: white;
+  font-weight: 400;
+  cursor: pointer;
+}
+.okbtn:hover {
+  background: #006df1;
 }
 
 .canvas {
@@ -38,7 +159,7 @@ body {
   margin: 0.3em;
   cursor: pointer;
   font-size: 0.85em;
-  font-weight: bold;
+  font-weight: 400;
   display: flex;
   justify-content: center;
   align-items: center;
