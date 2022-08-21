@@ -14,6 +14,7 @@ let currentSelectedGate = null;
 let snapable = false;
 
 let pressedKeys = [];
+let keyCodes = { control: 17, command: 91 };
 
 const defaultGateInputCount = 2;
 const defaultInputBoxCount = 2;
@@ -191,15 +192,13 @@ function setEventListeners() {
 }
 
 function keyPressed(event) {
-  if (event.key == "Control" && !pressedKeys.includes("Control"))
-    pressedKeys.push(event.key);
+  // if (event.key == "Control" && !pressedKeys.includes("Control"))
+  if (!pressedKeys.includes(event.keyCode)) pressedKeys.push(event.keyCode);
 }
 
 function keyRelease(event) {
-  console.log(event.key);
-  if (event.key == "Control") {
-    remove(event.key, pressedKeys);
-  }
+  console.log(event.keyCode);
+  remove(event.keyCode, pressedKeys);
 }
 
 function onRClick(event) {
@@ -269,7 +268,11 @@ function onMouseMove(event) {
       con.position.y,
       connectionPoint.radius
     );
-    if (isIn && pressedKeys.includes("Control")) {
+    if (
+      isIn &&
+      (pressedKeys.includes(keyCodes.control) ||
+        pressedKeys.includes(keyCodes.command))
+    ) {
       con.hover = true;
     } else con.hover = false;
   });
