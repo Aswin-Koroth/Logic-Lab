@@ -1,206 +1,47 @@
-@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@200&display=swap");
-@import url("https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100;0,200;0,400;0,700;1,600&display=swap");
-*,
-*::before,
-*::after {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-  font-family: "Montserrat";
-  -webkit-touch-callout: none;
-  -webkit-user-select: none;
-  -khtml-user-select: none;
-  -moz-user-select: none;
-  -ms-user-select: none;
-  user-select: none;
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@200&display=swap');
+
+*{
+    box-sizing:border-box;
+    margin:0;
+    padding:0;
+    font-family:"Poppins"
 }
 
-body {
-  width: 100vw;
-  height: 100vh;
-  background: #2d3142;
-  position: relative;
+body{
+    background:#2d3142;
 }
 
-.bg {
-  display: none;
-  position: absolute;
-  background-color: rgba(0, 0, 0, 0.5);
-  height: 100%;
-  width: 100%;
-  bottom: 0;
-  z-index: 99;
+.canvas{
+    background:#222831;
 }
 
-.promptbox,
-.alertbox {
-  display: none;
-  position: fixed;
-  height: 200px;
-  width: 500px;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  border-radius: 15px;
-  overflow: hidden;
-  background: rgba(200, 211, 217, 0.85);
-  backdrop-filter: blur(6px);
-  z-index: 9999;
-}
-.alertbox {
-  height: 100px;
-}
-.titlebar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  height: 25%;
-  padding: 0 18px;
-  background: rgba(255, 255, 255, 0.85);
-  backdrop-filter: blur(6px);
+.gate{
+    background:#5a189a;
 }
 
-.titlebar span {
-  color: #3c3c3b;
-  text-align: center;
-  font-weight: 600;
-  letter-spacing: 2px;
-}
-.cross {
-  width: 16px;
-  height: 17px;
-  position: relative;
-  cursor: pointer;
-}
-.cross:hover {
-  height: 20px;
-}
-.cross::after,
-.cross::before {
-  content: "";
-  position: absolute;
-  background-color: #f06825;
-  width: 20%;
-  height: 100%;
-  border-radius: 2px;
-}
-.cross::before {
-  transform: translate(8px) rotate(45deg);
-}
-.cross::after {
-  transform: translate(8px) rotate(-45deg);
-}
-.prompt {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 15%;
-  flex-direction: column;
-  height: 75%;
-}
-.warning {
-  height: 15px;
-  color: #d02224;
-}
-.prompt div:first-child {
-  width: 100%;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  flex-direction: column;
-  gap: 15px;
+.dlt{
+    background:#d02224;
 }
 
-.text {
-  background-color: white;
-  border-radius: 9px;
-  width: 400px;
-  height: 40px;
-  border: none;
-  padding: 0.5em;
-}
-.text:focus {
-  outline: none;
-}
-.okbtn {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  background: #005a77;
-  border-radius: 6px;
-  width: 15%;
-  height: 25%;
-  color: white;
-  font-weight: 400;
-  cursor: pointer;
-}
-.okbtn:hover {
-  background: #006df1;
+.btn{
+    color:#cbf3f0;
+    width:70px;
+    height:40px;
+    line-height:40px;
+    text-align:center;
+    border-radius:2px;
+    margin-left:1em;
+    cursor:pointer;
+    font-weight:bold;
 }
 
-.canvas {
-  background: #222831;
-  margin-top: 0.8em;
-}
-.container {
-  display: flex;
-  justify-content: center;
-  align-items: center;
+.buttons{
+    margin-bottom:.4em;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    user-select:none;
 }
 
-.btn {
-  color: #cbf3f0;
-  width: 70px;
-  height: fit-content;
-  line-height: 40px;
-  text-align: center;
-  user-select: none;
-  border-radius: 2px;
-  margin: 0.3em;
-  cursor: pointer;
-  font-size: 0.85em;
-  font-weight: 400;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-.gate {
-  width: fit-content;
-  min-width: 40px;
-  padding: 0 0.5em 0 0.5em;
-  background: #5a189a;
-}
-.dlt {
-  background: #d02224;
-}
-.add {
-  background: #399c30;
-  width: 30px;
-  height: 30px;
-  font-size: 0.9em;
-}
-.remove {
-  background: #d02224;
-  width: 30px;
-  height: 30px;
-  font-size: 0.9em;
-}
 
-.buttons {
-  margin: 0 50px 0.4em 50px;
-  display: flex;
-  justify-content: flex-start;
-  align-items: center;
-  flex-wrap: wrap;
-}
-.group {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  align-items: center;
-  margin-right: 2em;
-}
 
-.buttons .group:last-child {
-  margin-right: 0;
-}
