@@ -7,7 +7,7 @@ const addButton = document.querySelectorAll(".add");
 const removeButton = document.querySelectorAll(".remove");
 const bg = document.querySelector(".bg");
 
-const loadToMemory = false;
+const loadToMemory = true;
 let paused = false;
 
 let tempSelection = null;
@@ -33,10 +33,18 @@ let INPUTBOXES = [];
 let OUTPUTBOXES = [];
 
 function main() {
+  setTheme();
   setEventListeners();
   updateCanvas();
   createBoolBox();
   createCustomGateButtons();
+}
+
+function setTheme() {
+  let root = document.querySelector(":root");
+  canvas.style.backgroundColor = Theme.canvas;
+  document.body.style.backgroundColor = Theme.body;
+  root.style.setProperty("--addRemove-color", Theme.addRemove);
 }
 
 function createCustomGateButtons() {
@@ -85,7 +93,9 @@ function createBoolBox() {
 }
 
 function updateCanvas(timestamp) {
-  canvas.width = window.innerWidth - 80;
+  // canvas.width = window.innerWidth;
+  // canvas.height = window.innerHeight;
+  canvas.width = window.innerWidth - 120;
   canvas.height = window.innerHeight - 100;
   //Mark gates for delete if out of frame
   if (parseInt(timestamp) % 1000 == 0 && timestamp != 0) {
@@ -98,6 +108,17 @@ function updateCanvas(timestamp) {
     if (gate.markedForDelete) deleteGate(gate);
     gate.update(ctx, gate === currentSelectedGate);
   });
+  if (GATES.length == 0) {
+    ctx.fillStyle = "#666666";
+    ctx.font = "400 1.3em Montserrat";
+    // context.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.fillText(
+      "DRAG AND DROP GATES FROM LIST",
+      canvas.width / 2,
+      canvas.height / 2
+    );
+  }
   //labels
   [...connectionPoints.input, ...connectionPoints.output].forEach((con) =>
     con.drawLabel(ctx)

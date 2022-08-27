@@ -4,9 +4,15 @@
     <meta charset="UTF-8" />
     <title>Logic Canvas</title>
     <link rel="stylesheet" href="style.css" />
+    <script src="themes.js" defer></script>
+    <script src="utils.js" defer></script>
+    <script src="rawData.js" defer></script>
+    <script src="objects.js" defer></script>
+    <script src="main.js" defer></script>
   </head>
   <body>
     <div class="bg"></div>
+    <!-- Prompt Box -->
     <div class="promptbox">
       <div class="titlebar">
         <span></span>
@@ -20,6 +26,8 @@
         <div class="okbtn"><span>OK</span></div>
       </div>
     </div>
+    <!-- Prompt Box end -->
+    <!-- Alert box -->
     <div class="alertbox">
       <div class="titlebar">
         <span>ALERT!!!</span>
@@ -29,15 +37,17 @@
         <div></div>
       </div>
     </div>
+    <!-- Alert box end -->
+
     <div class="container">
       <div>
-        <div class="btn add" data-type="0">+</div>
-        <div class="btn remove" data-type="0">-</div>
+        <div class="btn add" data-type="0"></div>
+        <div class="btn remove" data-type="0"></div>
       </div>
       <canvas class="canvas" oncontextmenu="return false;"></canvas>
       <div>
-        <div class="btn add" data-type="1">+</div>
-        <div class="btn remove" data-type="1">-</div>
+        <div class="btn add" data-type="1"></div>
+        <div class="btn remove" data-type="1"></div>
       </div>
     </div>
     <div class="buttons">
@@ -57,12 +67,5 @@
       </div>
       <div class="group custom"></div>
     </div>
-
-    <!-- <div class="buttons custom"></div> -->
-
-    <script src="utils.js"></script>
-    <script src="rawData.js"></script>
-    <script src="objects.js"></script>
-    <script src="main.js"></script>
   </body>
 </html>

@@ -1,5 +1,15 @@
 @import url("https://fonts.googleapis.com/css2?family=Poppins:wght@200&display=swap");
 @import url("https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100;0,200;0,400;0,700;1,600&display=swap");
+
+:root {
+  --addRemove-color: white;
+  --prompt-alert-body: rgba(200, 211, 217, 0.85);
+  --prompt-alert-title: rgba(255, 255, 255, 0.85);
+  --prompt-alert-cross: #f06825;
+  --prompt-alert-text: #3c3c3b;
+  --warning: #d02224;
+}
+
 *,
 *::before,
 *::after {
@@ -18,8 +28,11 @@
 body {
   width: 100vw;
   height: 100vh;
-  background: #2d3142;
   position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
 }
 
 .bg {
@@ -28,7 +41,6 @@ body {
   background-color: rgba(0, 0, 0, 0.5);
   height: 100%;
   width: 100%;
-  bottom: 0;
   z-index: 99;
 }
 
@@ -43,8 +55,8 @@ body {
   transform: translate(-50%, -50%);
   border-radius: 15px;
   overflow: hidden;
-  background: rgba(200, 211, 217, 0.85);
-  backdrop-filter: blur(6px);
+  background: var(--prompt-alert-body);
+  backdrop-filter: blur(3px);
   z-index: 9999;
 }
 .alertbox {
@@ -56,39 +68,41 @@ body {
   justify-content: space-between;
   height: 25%;
   padding: 0 18px;
-  background: rgba(255, 255, 255, 0.85);
+  background: var(--prompt-alert-title);
   backdrop-filter: blur(6px);
 }
 
 .titlebar span {
-  color: #3c3c3b;
+  color: var(--prompt-alert-text);
   text-align: center;
   font-weight: 600;
   letter-spacing: 2px;
 }
 .cross {
-  width: 16px;
-  height: 17px;
+  height: 20px;
+  width: 20px;
   position: relative;
-  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 .cross:hover {
-  height: 20px;
+  transform: scale(1.1);
 }
 .cross::after,
 .cross::before {
   content: "";
   position: absolute;
-  background-color: #f06825;
-  width: 20%;
-  height: 100%;
+  width: 3px;
+  height: 17px;
+  background-color: var(--prompt-alert-cross);
   border-radius: 2px;
 }
 .cross::before {
-  transform: translate(8px) rotate(45deg);
+  transform: rotate(45deg);
 }
 .cross::after {
-  transform: translate(8px) rotate(-45deg);
+  transform: rotate(-45deg);
 }
 .prompt {
   display: flex;
@@ -100,7 +114,7 @@ body {
 }
 .warning {
   height: 15px;
-  color: #d02224;
+  color: var(--warning);
 }
 .prompt div:first-child {
   width: 100%;
@@ -113,7 +127,10 @@ body {
 
 .text {
   background-color: white;
+  color: var(--prompt-alert-text);
   border-radius: 9px;
+  font-weight: bold;
+  font-size: medium;
   width: 400px;
   height: 40px;
   border: none;
@@ -139,12 +156,13 @@ body {
 }
 
 .canvas {
-  background: #222831;
-  margin-top: 0.8em;
+  border-radius: 20px;
 }
 .container {
   display: flex;
   justify-content: center;
+  margin-top: 0.8em;
+  /* margin: 0.8em 1em 0 1em; */
   align-items: center;
 }
 
@@ -173,17 +191,40 @@ body {
 .dlt {
   background: #d02224;
 }
-.add {
-  background: #399c30;
-  width: 30px;
-  height: 30px;
-  font-size: 0.9em;
-}
+.add,
 .remove {
-  background: #d02224;
   width: 30px;
   height: 30px;
-  font-size: 0.9em;
+  margin: 0.9em;
+  position: relative;
+}
+.add:hover,
+.remove:hover {
+  transform: scale(1.1);
+}
+.add::after,
+.add::before,
+.remove::after,
+.remove::before {
+  content: "";
+  background-color: var(--addRemove-color);
+  height: 23px;
+  width: 5px;
+  border-radius: 2px;
+  position: absolute;
+}
+.add::before {
+  transform: rotate(90deg);
+}
+.remove::after,
+.remove::before {
+  height: 26px;
+}
+.remove::before {
+  transform: rotate(45deg);
+}
+.remove::after {
+  transform: rotate(-45deg);
 }
 
 .buttons {

@@ -1,7 +1,8 @@
 let connectionPoints = { input: [], output: [] };
+let Theme = Themes.default;
 
 function getColor(bool) {
-  return bool ? "#8edf34" : "#47555E"; //true:false
+  return bool ? Theme.bool.true : Theme.bool.false;
 }
 
 class gate {
@@ -16,7 +17,7 @@ class gate {
     this.height = inpCount * (connectionPoint.radius * 2) + 20;
     this.width = 80; //temp
     this.offset = { x: this.width / 2, y: this.height / 2 };
-    this.color = "#613dc1"; //temp
+    this.color = Theme.gate;
     this.isSelected = false;
     this.markedForDelete = false;
     this.conLabel = conLabel;
@@ -75,21 +76,21 @@ class gate {
   #draw(context) {
     //Body
     context.beginPath();
-    context.lineWidth = 1; //temp
+    context.lineWidth = 0.8; //temp
     context.rect(this.position.x, this.position.y, this.width, this.height);
     context.fillStyle = this.color;
     context.fill();
     context.strokeStyle = this.isSelected ? "white" : "Black";
     context.stroke();
     //Text
-    context.fillStyle = "white"; //temp
-    context.font = "1.3em Poppins"; //temp
+    context.fillStyle = "black"; //temp
+    context.font = "1.2em Montserrat"; //temp
     context.textAlign = "center";
     context.textBaseline = "middle";
     context.fillText(
       this.name,
       this.position.x + this.width / 2,
-      this.position.y + this.height / 2 + 3
+      this.position.y + this.height / 2 + 1
     ); //temp 3 for alignment
   }
 
@@ -98,13 +99,13 @@ class gate {
     //updating inputPoint position
     this.input.forEach((point, index) => {
       let loc = this.#getConPointLoc(0, index);
-      point.position.x = loc.x;
+      point.position.x = loc.x + point.offset;
       point.position.y = loc.y;
     });
     //updating outputPoint position
     this.output.forEach((point, index) => {
       let loc = this.#getConPointLoc(1, index);
-      point.position.x = loc.x;
+      point.position.x = loc.x + point.offset;
       point.position.y = loc.y;
     });
 
@@ -240,8 +241,6 @@ class connectionPoint {
     context.fill();
     context.stroke();
     this.drawConLine(context);
-
-    // this.drawLabel(context);
   }
   drawLabel(context) {
     if (this.hover) {
@@ -260,7 +259,7 @@ class connectionPoint {
       ctx.globalAlpha = 1;
       //Text
       context.fillStyle = "white"; //temp
-      context.font = "1em Poppins"; //temp
+      context.font = "1em Montserrat"; //temp
       context.fillText(
         this.label.text,
         this.labelLoc.x + this.label.width / 2,
@@ -275,6 +274,7 @@ class inputPoint extends connectionPoint {
   constructor(x, y, parent, label = "INP " + parent.index) {
     super(x, y, parent);
     this.connection = null;
+    this.offset = -10; ///////
 
     this.label = {
       width: 100,
@@ -317,6 +317,7 @@ class outputPoint extends connectionPoint {
   constructor(x, y, parent, label = "OUT " + parent.index) {
     super(x, y, parent);
     this.connections = [];
+    this.offset = 10; ///////
 
     this.label = {
       width: 100,
@@ -395,10 +396,10 @@ class boolBox {
     //value
     let value = this.connection.value ? 1 : 0;
     context.fillStyle = this.connection.value ? "black" : "white"; //temp
-    context.font = "2em Poppins"; //temp
+    context.font = "2em Montserrat"; //temp
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
-    context.fillText(value, this.position.x, this.position.y + 3); //+3 align correction
+    context.fillText(value, this.position.x, this.position.y + 2); //+2 align correction
     //connection point
     this.connection.update(context);
   }
@@ -416,7 +417,8 @@ class inputBox extends boolBox {
   }
   update(context) {
     // updating connection point position
-    this.connection.position.x = this.position.x + boolBox.radius;
+    this.connection.position.x =
+      this.position.x + boolBox.radius + this.connection.offset; //offset
     this.connection.position.y = this.position.y;
     this.draw(context);
   }
@@ -437,7 +439,8 @@ class outputBox extends boolBox {
   }
   update(context) {
     this.position.x = context.canvas.width - 40; //temp
-    this.connection.position.x = this.position.x - boolBox.radius;
+    this.connection.position.x =
+      this.position.x - boolBox.radius + this.connection.offset;
     this.connection.position.y = this.position.y;
     this.draw(context);
   }
