@@ -1,6 +1,6 @@
 Themes = {
   default: {
-    gate: "#fbba00",
+    gate: { main: "#fbba00", text: "black" },
     bool: { true: "#005a77", false: "#47555E" },
     addRemove: "#c8d3d9",
     body: "#1e1e1e",
@@ -9,10 +9,9 @@ Themes = {
   old: {
     body: "#2d3142",
     canvas: "#222831",
-    gate: "#613dc1",
+    gate: { main: "#613dc1", text: "white" },
     bool: { true: "#8edf34", false: "#47555E" },
     gateBtn: "#5a189a",
-    remove: "#d02224",
-    add: "#399c30",
+    addRemove: "#c8d3e9",
   },
 };

@@ -3,6 +3,8 @@
 
 :root {
   --addRemove-color: white;
+  --toolButton: #f06825;
+  --gateButton: #2f3c4f;
   --prompt-alert-body: rgba(200, 211, 217, 0.85);
   --prompt-alert-title: rgba(255, 255, 255, 0.85);
   --prompt-alert-cross: #f06825;
@@ -25,25 +27,8 @@
   user-select: none;
 }
 
-body {
-  width: 100vw;
-  height: 100vh;
-  position: relative;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  flex-direction: column;
-}
-
-.bg {
-  display: none;
-  position: absolute;
-  background-color: rgba(0, 0, 0, 0.5);
-  height: 100%;
-  width: 100%;
-  z-index: 99;
-}
-
+/* Prompt Box / Alert Box */
+/* START */
 .promptbox,
 .alertbox {
   display: none;
@@ -59,9 +44,6 @@ body {
   backdrop-filter: blur(3px);
   z-index: 9999;
 }
-.alertbox {
-  height: 100px;
-}
 .titlebar {
   display: flex;
   align-items: center;
@@ -71,7 +53,6 @@ body {
   background: var(--prompt-alert-title);
   backdrop-filter: blur(6px);
 }
-
 .titlebar span {
   color: var(--prompt-alert-text);
   text-align: center;
@@ -79,24 +60,21 @@ body {
   letter-spacing: 2px;
 }
 .cross {
-  height: 20px;
   width: 20px;
+  height: 20px;
   position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
 }
-.cross:hover {
-  transform: scale(1.1);
-}
-.cross::after,
-.cross::before {
+.cross::before,
+.cross::after {
   content: "";
-  position: absolute;
-  width: 3px;
-  height: 17px;
   background-color: var(--prompt-alert-cross);
+  height: 18px;
+  width: 0.23em;
   border-radius: 2px;
+  position: absolute;
 }
 .cross::before {
   transform: rotate(45deg);
@@ -104,6 +82,20 @@ body {
 .cross::after {
   transform: rotate(-45deg);
 }
+.cross:hover {
+  transform: scale(1.1);
+}
+/* Alert Box */
+.alertbox {
+  height: 100px;
+}
+.alertbox .titlebar {
+  height: 30%;
+}
+.alertbox .prompt {
+  height: 70%;
+}
+/* Prompt Box */
 .prompt {
   display: flex;
   align-items: center;
@@ -124,7 +116,6 @@ body {
   flex-direction: column;
   gap: 15px;
 }
-
 .text {
   background-color: white;
   color: var(--prompt-alert-text);
@@ -140,67 +131,107 @@ body {
   outline: none;
 }
 .okbtn {
+  background: #1f649f;
+}
+.okbtn:hover {
+  background: #113a5d;
+}
+/* END */
+
+body {
+  width: 100vw;
+  height: 100vh;
+  position: relative;
   display: flex;
   justify-content: center;
   align-items: center;
-  background: #005a77;
-  border-radius: 6px;
-  width: 15%;
-  height: 25%;
-  color: white;
-  font-weight: 400;
-  cursor: pointer;
+  flex-direction: column;
+  overflow-x: hidden;
 }
-.okbtn:hover {
-  background: #006df1;
+body::-webkit-scrollbar {
+  display: none;
+}
+.bg {
+  display: none;
+  position: absolute;
+  overflow: hidden;
+  background-color: rgba(0, 0, 0, 0.5);
+  height: 100%;
+  width: 100%;
+  z-index: 99;
 }
 
-.canvas {
-  border-radius: 20px;
-}
 .container {
   display: flex;
   justify-content: center;
-  margin-top: 0.8em;
-  /* margin: 0.8em 1em 0 1em; */
   align-items: center;
+}
+.canvas {
+  border-radius: 20px;
 }
 
 .btn {
-  color: #cbf3f0;
-  width: 70px;
-  height: fit-content;
-  line-height: 40px;
-  text-align: center;
-  user-select: none;
-  border-radius: 2px;
-  margin: 0.3em;
-  cursor: pointer;
+  width: 5.5em;
+  height: 2.5em;
   font-size: 0.85em;
   font-weight: 400;
+  color: #cbf3f0;
+  text-align: center;
+  border-radius: 5px;
+  margin: 0.3em;
+  user-select: none;
+  cursor: pointer;
   display: flex;
   justify-content: center;
   align-items: center;
 }
-.gate {
+
+.tools {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  width: 80%;
+  margin-top: 20px;
+}
+.toolBtn {
+  background: var(--toolButton);
+  height: 2.5em;
+}
+.gates {
+  margin: 0 50px 0.4em 50px;
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.gates .group:first-of-type {
+  background-color: #476076;
+}
+.group {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  border-radius: 5px;
+  /* margin-right: 2em; */
+}
+.gateBtn {
   width: fit-content;
-  min-width: 40px;
+  min-width: 4em;
   padding: 0 0.5em 0 0.5em;
-  background: #5a189a;
+  background: var(--gateButton);
 }
-.dlt {
-  background: #d02224;
-}
+/* add/remove buttons */
+/* START */
 .add,
 .remove {
   width: 30px;
   height: 30px;
   margin: 0.9em;
   position: relative;
-}
-.add:hover,
-.remove:hover {
-  transform: scale(1.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 .add::after,
 .add::before,
@@ -213,12 +244,12 @@ body {
   border-radius: 2px;
   position: absolute;
 }
-.add::before {
-  transform: rotate(90deg);
-}
 .remove::after,
 .remove::before {
   height: 26px;
+}
+.add::before {
+  transform: rotate(90deg);
 }
 .remove::before {
   transform: rotate(45deg);
@@ -226,22 +257,14 @@ body {
 .remove::after {
   transform: rotate(-45deg);
 }
-
-.buttons {
-  margin: 0 50px 0.4em 50px;
-  display: flex;
-  justify-content: flex-start;
-  align-items: center;
-  flex-wrap: wrap;
+.add:hover::after,
+.add:hover::before,
+.remove:hover::after,
+.remove:hover::before {
+  background-color: white;
 }
-.group {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  align-items: center;
-  margin-right: 2em;
+.add:hover,
+.remove:hover {
+  transform: scale(1.1);
 }
-
-.buttons .group:last-child {
-  margin-right: 0;
-}
+/* END */

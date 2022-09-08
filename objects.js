@@ -14,10 +14,11 @@ class gate {
     conLabel = { input: [], output: [] }
   ) {
     this.position = { x: x, y: y };
-    this.height = inpCount * (connectionPoint.radius * 2) + 20;
+    this.height =
+      Math.max(inpCount, outCount) * (connectionPoint.radius * 2) + 20;
     this.width = 80; //temp
     this.offset = { x: this.width / 2, y: this.height / 2 };
-    this.color = Theme.gate;
+    this.color = Theme.gate.main;
     this.isSelected = false;
     this.markedForDelete = false;
     this.conLabel = conLabel;
@@ -76,14 +77,14 @@ class gate {
   #draw(context) {
     //Body
     context.beginPath();
-    context.lineWidth = 0.8; //temp
+    context.lineWidth = 0.4; //temp
     context.rect(this.position.x, this.position.y, this.width, this.height);
     context.fillStyle = this.color;
     context.fill();
     context.strokeStyle = this.isSelected ? "white" : "Black";
     context.stroke();
     //Text
-    context.fillStyle = "black"; //temp
+    context.fillStyle = Theme.gate.text; //temp
     context.font = "1.2em Montserrat"; //temp
     context.textAlign = "center";
     context.textBaseline = "middle";
@@ -91,7 +92,7 @@ class gate {
       this.name,
       this.position.x + this.width / 2,
       this.position.y + this.height / 2 + 1
-    ); //temp 3 for alignment
+    ); //temp 1 for alignment
   }
 
   update(context = null, isSelected = false) {
@@ -395,8 +396,8 @@ class boolBox {
     context.stroke();
     //value
     let value = this.connection.value ? 1 : 0;
-    context.fillStyle = this.connection.value ? "black" : "white"; //temp
-    context.font = "2em Montserrat"; //temp
+    context.fillStyle = this.connection.value ? "white" : "white"; //temp
+    context.font = "1.7em Montserrat"; //temp
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
     context.fillText(value, this.position.x, this.position.y + 2); //+2 align correction

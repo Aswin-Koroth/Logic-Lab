@@ -1,8 +1,8 @@
-//LOGIC SIM V2.0
+//LOGIC SIM V3.0
 const canvas = document.querySelector(".canvas"),
   ctx = canvas.getContext("2d");
 
-const gateButtons = document.querySelectorAll(".gate");
+const gateButtons = document.querySelectorAll(".gateBtn");
 const addButton = document.querySelectorAll(".add");
 const removeButton = document.querySelectorAll(".remove");
 const bg = document.querySelector(".bg");
@@ -38,6 +38,32 @@ function main() {
   updateCanvas();
   createBoolBox();
   createCustomGateButtons();
+}
+
+function updateCanvas(timestamp) {
+  canvas.width = window.innerWidth - 120;
+  canvas.height = window.innerHeight - 100;
+  ctx.fillStyle = "red";
+  ctx.fill();
+  //Mark gates for delete if out of frame
+  if (parseInt(timestamp) % 1000 == 0 && timestamp != 0) {
+    markForDelete();
+  }
+  //boolbox
+  [...INPUTBOXES, ...OUTPUTBOXES].forEach((box) => box.update(ctx));
+  //Gates
+  GATES.forEach((gate) => {
+    if (gate.markedForDelete) deleteGate(gate);
+    gate.update(ctx, gate === currentSelectedGate);
+  });
+  if (GATES.length == 0) {
+    drawHelp(ctx);
+  }
+  //labels
+  [...connectionPoints.input, ...connectionPoints.output].forEach((con) =>
+    con.drawLabel(ctx)
+  );
+  requestAnimationFrame(updateCanvas);
 }
 
 function setTheme() {
@@ -92,38 +118,27 @@ function createBoolBox() {
   }
 }
 
-function updateCanvas(timestamp) {
-  // canvas.width = window.innerWidth;
-  // canvas.height = window.innerHeight;
-  canvas.width = window.innerWidth - 120;
-  canvas.height = window.innerHeight - 100;
-  //Mark gates for delete if out of frame
-  if (parseInt(timestamp) % 1000 == 0 && timestamp != 0) {
-    markForDelete();
-  }
-  //boolbox
-  [...INPUTBOXES, ...OUTPUTBOXES].forEach((box) => box.update(ctx));
-  //Gates
-  GATES.forEach((gate) => {
-    if (gate.markedForDelete) deleteGate(gate);
-    gate.update(ctx, gate === currentSelectedGate);
-  });
-  if (GATES.length == 0) {
-    ctx.fillStyle = "#666666";
-    ctx.font = "400 1.3em Montserrat";
-    // context.textAlign = "center";
-    ctx.textBaseline = "middle";
-    ctx.fillText(
-      "DRAG AND DROP GATES FROM LIST",
-      canvas.width / 2,
-      canvas.height / 2
-    );
-  }
-  //labels
-  [...connectionPoints.input, ...connectionPoints.output].forEach((con) =>
-    con.drawLabel(ctx)
+function drawHelp(context) {
+  let drawColor = "#666666";
+  //Text
+  context.fillStyle = drawColor;
+  context.font = "400 1.3em Montserrat";
+  context.textBaseline = "middle";
+  context.fillText(
+    "DRAG AND DROP GATES FROM LIST",
+    canvas.width / 2,
+    canvas.height / 2
   );
-  requestAnimationFrame(updateCanvas);
+  //arrow and line
+  let x = canvas.width / 2;
+  let y = canvas.height / 2 + canvas.height / 7;
+  let arrowLength = canvas.height - 60 - y;
+  drawArrow(context, x, y, x, y + arrowLength, drawColor);
+  context.lineWidth = 1;
+  context.beginPath();
+  context.moveTo(80, canvas.height - 20);
+  context.lineTo(canvas.width - 80, canvas.height - 20);
+  context.stroke();
 }
 
 function markForDelete() {
@@ -342,14 +357,20 @@ function removeBox(event) {
 }
 
 function createGateBtn(label) {
+  let parent = document.querySelector(".gates");
   let div = document.querySelector(".custom");
+  if (div == null) {
+    div = document.createElement("div");
+    div.classList.add("group", "custom");
+  }
   let button = document.createElement("div");
-  button.classList.add("btn", "gate");
+  button.classList.add("btn", "gateBtn");
   button.setAttribute("data-name", label);
   button.innerText = label;
 
   button.addEventListener("mousedown", spawn);
   div.appendChild(button);
+  parent.appendChild(div);
 }
 
 function spawn(event) {
@@ -383,7 +404,10 @@ function getCircuit(rawData) {
   let circuit = [];
   let points = { input: [[]], output: [] };
   //creating all gates
-  gate.forEach((g) => circuit.push(createGate(g)));
+  gate.forEach((g, index) => {
+    let inputCount = ob[index].input.length;
+    circuit.push(createGate(g, 0, 0, inputCount));
+  });
 
   circuit.forEach((gt, index) => {
     //setting output points
@@ -409,20 +433,20 @@ function getCircuit(rawData) {
   return { circuit: circuit, points: points };
 }
 
-function createGate(name, x = 0, y = 0) {
+function createGate(name, x = 0, y = 0, inputCount = defaultGateInputCount) {
   switch (name) {
     case "AND":
-      return new AND(x, y, defaultGateInputCount);
+      return new AND(x, y, inputCount);
     case "OR":
-      return new OR(x, y, defaultGateInputCount);
+      return new OR(x, y, inputCount);
     case "NOT":
       return new NOT(x, y);
     case "NAND":
-      return new NAND(x, y, defaultGateInputCount);
+      return new NAND(x, y, inputCount);
     case "NOR":
-      return new NOR(x, y, defaultGateInputCount);
+      return new NOR(x, y, inputCount);
     case "XOR":
-      return new XOR(x, y, defaultGateInputCount);
+      return new XOR(x, y, inputCount);
     default:
       gateData = getGateData(name);
       return new customGate(
