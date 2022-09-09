@@ -78,7 +78,15 @@ class gate {
     //Body
     context.beginPath();
     context.lineWidth = 0.4; //temp
-    context.rect(this.position.x, this.position.y, this.width, this.height);
+    drawRoundRect(
+      context,
+      this.position.x,
+      this.position.y,
+      this.width,
+      this.height,
+      15
+    );
+    // context.rect(this.position.x, this.position.y, this.width, this.height);
     context.fillStyle = this.color;
     context.fill();
     context.strokeStyle = this.isSelected ? "white" : "Black";
@@ -223,6 +231,7 @@ class connectionPoint {
     this.position = { x: x, y: y };
     this.value = false;
 
+    this.offset = 10; //Distance of connection point from parent
     this.hover = false;
     this.parent = { isGate: parent.isGate, index: parent.index };
   }
@@ -249,7 +258,8 @@ class connectionPoint {
       context.beginPath();
       context.lineWidth = 1; //temp
       ctx.globalAlpha = 0.7;
-      context.rect(
+      drawRoundRect(
+        context,
         this.labelLoc.x,
         this.labelLoc.y,
         this.label.width,
@@ -275,11 +285,11 @@ class inputPoint extends connectionPoint {
   constructor(x, y, parent, label = "INP " + parent.index) {
     super(x, y, parent);
     this.connection = null;
-    this.offset = -10; ///////
+    this.offset = -this.offset;
 
     this.label = {
-      width: 100,
-      height: 20,
+      width: 105,
+      height: 21,
       text: label,
     };
     this.labelLoc = {
@@ -318,7 +328,6 @@ class outputPoint extends connectionPoint {
   constructor(x, y, parent, label = "OUT " + parent.index) {
     super(x, y, parent);
     this.connections = [];
-    this.offset = 10; ///////
 
     this.label = {
       width: 100,
@@ -364,6 +373,7 @@ class connectionLine {
     ctx.moveTo(this.start.position.x, this.start.position.y);
     ctx.lineTo(this.end.position.x, this.end.position.y);
     ctx.lineWidth = 5;
+    ctx.lineCap = "round";
     ctx.stroke();
     ctx.restore();
   }
@@ -396,7 +406,7 @@ class boolBox {
     context.stroke();
     //value
     let value = this.connection.value ? 1 : 0;
-    context.fillStyle = this.connection.value ? "white" : "white"; //temp
+    context.fillStyle = this.connection.value ? "black" : "white"; //temp
     context.font = "1.7em Montserrat"; //temp
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";

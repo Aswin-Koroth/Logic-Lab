@@ -31,3 +31,23 @@ function drawArrow(context, startX, startY, endX, endY, color) {
   context.fill();
   context.stroke();
 }
+
+function drawRoundRect(context, x, y, width, height, cValue = 10) {
+  if (cValue > Math.min(width, height) / 2)
+    cValue = Math.min(width, height) / 2;
+  let starX = x + cValue;
+  let endX = x + width - cValue;
+  let startY = y + cValue;
+  let endY = y + height - cValue;
+
+  context.beginPath();
+  context.moveTo(starX, y);
+  context.lineTo(endX, y);
+  context.quadraticCurveTo(x + width, y, x + width, startY);
+  context.lineTo(x + width, endY);
+  context.quadraticCurveTo(x + width, y + height, endX, y + height);
+  context.lineTo(starX, y + height);
+  context.quadraticCurveTo(x, y + height, x, endY);
+  context.lineTo(x, startY);
+  context.quadraticCurveTo(x, y, starX, y);
+}

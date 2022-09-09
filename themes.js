@@ -1,7 +1,7 @@
 Themes = {
   default: {
     gate: { main: "#fbba00", text: "black" },
-    bool: { true: "#005a77", false: "#47555E" },
+    bool: { true: "#00c9ff", false: "#47555E" },
     addRemove: "#c8d3d9",
     body: "#1e1e1e",
     canvas: "#3c3c3b",

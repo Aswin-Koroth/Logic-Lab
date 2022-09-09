@@ -134,6 +134,7 @@ function drawHelp(context) {
   let y = canvas.height / 2 + canvas.height / 7;
   let arrowLength = canvas.height - 60 - y;
   drawArrow(context, x, y, x, y + arrowLength, drawColor);
+  //Line
   context.lineWidth = 1;
   context.beginPath();
   context.moveTo(80, canvas.height - 20);
