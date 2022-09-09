@@ -31,6 +31,11 @@ const minBoxCount = 1;
 let GATES = [];
 let INPUTBOXES = [];
 let OUTPUTBOXES = [];
+//GATEBUTTONS Not use currently
+let GATEBUTTONS = {
+  default: ["AND", "OR", "NOT", "NAND", "NOR", "XOR"],
+  custom: [],
+};
 
 function main() {
   setTheme();
@@ -528,6 +533,9 @@ function showPrompt(prompt, func) {
       func(name);
     }
   });
+  textBox.addEventListener("keydown", (event) => {
+    if (event.key == "Enter") okBtn.click();
+  });
 }
 
 function togglePause() {
@@ -597,6 +605,16 @@ function deleteGate(gate) {
     remove(gate.output[i], connectionPoints.output);
   //remove gate from array
   remove(gate, GATES);
+  currentSelectedGate = null;
+}
+
+function handleGateInputs(mode, gate) {
+  //mode = 0 => increment
+  //mode = 1 => decrement
+  if (gate != null) {
+    if (mode == 0) gate.incrementInputCount();
+    else if (mode == 1) gate.decrementInputCount();
+  }
 }
 
 main();

@@ -14,8 +14,7 @@ class gate {
     conLabel = { input: [], output: [] }
   ) {
     this.position = { x: x, y: y };
-    this.height =
-      Math.max(inpCount, outCount) * (connectionPoint.radius * 2) + 20;
+    this.height = this.#getHeight(Math.max(inpCount, outCount));
     this.width = 80; //temp
     this.offset = { x: this.width / 2, y: this.height / 2 };
     this.color = Theme.gate.main;
@@ -27,32 +26,40 @@ class gate {
     this.input = [];
     this.output = [];
     this.inputCount = inpCount;
+    this.minInputCount = 2; //minimum input count
+    this.maxInputCount = 8; //maximum input count
     this.outputCount = outCount;
-    this.setConnectionPoints();
+    this.#setConnectionPoints();
   }
-
-  setConnectionPoints() {
+  #getHeight(conCount) {
+    return conCount * (connectionPoint.radius * 2) + 20;
+  }
+  #setConnectionPoints() {
     for (let i = 0; i < this.inputCount; i++) {
-      let loc = this.#getConPointLoc(0, i); //0 - ID for input
-      this.input.push(
-        new inputPoint(
-          loc.x,
-          loc.y,
-          { isGate: this, index: i },
-          this.conLabel.input[i]
-        )
-      );
+      if (this.input[i] === undefined) {
+        let loc = this.#getConPointLoc(0, i); //0 - ID for input
+        this.input.push(
+          new inputPoint(
+            loc.x,
+            loc.y,
+            { isGate: this, index: i },
+            this.conLabel.input[i]
+          )
+        );
+      }
     }
     for (let i = 0; i < this.outputCount; i++) {
-      let loc = this.#getConPointLoc(1, i); //1 - ID for output
-      this.output.push(
-        new outputPoint(
-          loc.x,
-          loc.y,
-          { isGate: this, index: i },
-          this.conLabel.output[i]
-        )
-      );
+      if (this.output[i] === undefined) {
+        let loc = this.#getConPointLoc(1, i); //1 - ID for output
+        this.output.push(
+          new outputPoint(
+            loc.x,
+            loc.y,
+            { isGate: this, index: i },
+            this.conLabel.output[i]
+          )
+        );
+      }
     }
   }
 
@@ -117,11 +124,31 @@ class gate {
       point.position.x = loc.x + point.offset;
       point.position.y = loc.y;
     });
+    //updating height
+    this.height = this.#getHeight(Math.max(this.inputCount, this.outputCount));
 
     this.logic();
     //connection Points
     if (context) this.#draw(context);
     [...this.input, ...this.output].forEach((point) => point.update(context));
+  }
+
+  incrementInputCount() {
+    if (this instanceof customGate) return;
+    if (this.inputCount < this.maxInputCount) {
+      this.inputCount++;
+      this.#setConnectionPoints();
+    }
+  }
+
+  decrementInputCount() {
+    if (this instanceof customGate) return;
+    if (this.inputCount > this.minInputCount) {
+      this.input[this.inputCount - 1].disconnect();
+      this.inputCount--;
+      if (this.input[this.inputCount] !== undefined) this.input.pop();
+      this.#setConnectionPoints();
+    }
   }
 }
 
@@ -159,6 +186,7 @@ class NOT extends gate {
     super(x, y, 1); //1 = inputCount of NOT
     this.name = "NOT";
     this.offset = { x: this.width / 2, y: this.height / 2 };
+    this.minInputCount = this.maxInputCount = 1;
   }
   logic() {
     this.output[0].value = !this.input[0].value;
