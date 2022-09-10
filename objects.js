@@ -32,7 +32,7 @@ class gate {
     this.#setConnectionPoints();
   }
   #getHeight(conCount) {
-    return conCount * (connectionPoint.radius * 2) + 20;
+    return conCount * (connectionPoint.radius * 2) + 30;
   }
   #setConnectionPoints() {
     for (let i = 0; i < this.inputCount; i++) {
@@ -157,7 +157,7 @@ class customGate extends gate {
     super(x, y, inpCount, outCount, conLabel);
     this.circuit = circuit;
     this.name = name;
-    this.width = name.length * 10 + 40;
+    this.width = name.length * 12 + 40;
 
     this.groupInput = points.input;
     this.groupOutput = points.output;

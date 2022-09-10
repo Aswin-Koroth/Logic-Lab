@@ -203,19 +203,15 @@ body::-webkit-scrollbar {
   padding: 5px 70px 0 70px;
   display: flex;
   justify-content: flex-start;
-  align-items: center;
-  flex-wrap: wrap;
-}
-.gates .group:first-of-type {
-  background-color: #476076;
+  align-items: flex-start;
 }
 .group {
   display: flex;
   flex-wrap: wrap;
-  justify-content: center;
-  align-items: center;
   border-radius: 5px;
-  /* margin-right: 2em; */
+}
+.default {
+  background-color: #476076;
 }
 .gateBtn {
   width: fit-content;

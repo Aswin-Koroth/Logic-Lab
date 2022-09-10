@@ -18,24 +18,20 @@ let snapable = false;
 let pressedKeys = [];
 let keyCodes = { control: 17, command: 91 };
 
-const defaultGateInputCount = 2;
-const defaultInputBoxCount = 2;
-const defaultOutputBoxCount = 2;
-let defaultBoxPackingCount = 13; //changes with canvas height
-
-let currentInputBoxCount = defaultInputBoxCount;
-let currentOutputBoxCount = defaultOutputBoxCount;
+let gateInputCount = 2;
+let inputBoxCount = 2;
+let outputBoxCount = 2;
+let boxPackingCount = 13; //changes with canvas height
 const maxBoxCount = 14;
 const minBoxCount = 1;
 
 let GATES = [];
 let INPUTBOXES = [];
 let OUTPUTBOXES = [];
-//GATEBUTTONS Not use currently
-let GATEBUTTONS = {
-  default: ["AND", "OR", "NOT", "NAND", "NOR", "XOR"],
-  custom: [],
-};
+// let GATEBUTTONS = {
+//   default: ["AND", "OR", "NOT", "NAND", "NOR", "XOR"],
+//   custom: [],
+// };
 
 function main() {
   setTheme();
@@ -88,36 +84,28 @@ function createCustomGateButtons() {
 
 function createBoolBox() {
   let radius = boolBox.radius;
-  defaultBoxPackingCount = Math.round(canvas.height / (2 * radius) - 1);
+  boxPackingCount = Math.round(canvas.height / (2 * radius) - 1);
   //INPUTS
-  if (INPUTBOXES[currentInputBoxCount] !== undefined) {
-    INPUTBOXES[currentInputBoxCount].connection.disconnect();
+  if (INPUTBOXES[inputBoxCount] !== undefined) {
+    INPUTBOXES[inputBoxCount].connection.disconnect();
     INPUTBOXES.pop();
   }
-  for (let i = 0; i < currentInputBoxCount; i++) {
-    let fac = (defaultBoxPackingCount - currentInputBoxCount) * radius;
+  for (let i = 0; i < inputBoxCount; i++) {
+    let fac = (boxPackingCount - inputBoxCount) * radius;
     let x = 40;
-    let y = lerp(
-      fac,
-      canvas.height - fac,
-      (i + 1) / (currentInputBoxCount + 1)
-    );
+    let y = lerp(fac, canvas.height - fac, (i + 1) / (inputBoxCount + 1));
     if (INPUTBOXES[i] === undefined) INPUTBOXES.push(new inputBox(x, y, i));
     else INPUTBOXES[i].position.y = y;
   }
   //OUTPUTS
-  if (OUTPUTBOXES[currentOutputBoxCount] !== undefined) {
-    OUTPUTBOXES[currentOutputBoxCount].connection.disconnect();
+  if (OUTPUTBOXES[outputBoxCount] !== undefined) {
+    OUTPUTBOXES[outputBoxCount].connection.disconnect();
     OUTPUTBOXES.pop();
   }
-  for (let i = 0; i < currentOutputBoxCount; i++) {
-    let fac = (defaultBoxPackingCount - currentOutputBoxCount) * radius;
+  for (let i = 0; i < outputBoxCount; i++) {
+    let fac = (boxPackingCount - outputBoxCount) * radius;
     let x = canvas.width - 40;
-    let y = lerp(
-      fac,
-      canvas.height - fac,
-      (i + 1) / (currentOutputBoxCount + 1)
-    );
+    let y = lerp(fac, canvas.height - fac, (i + 1) / (outputBoxCount + 1));
     if (OUTPUTBOXES[i] === undefined) OUTPUTBOXES.push(new outputBox(x, y, i));
     else OUTPUTBOXES[i].position.y = y;
   }
@@ -347,18 +335,16 @@ function onMouseUp(event) {
 function addBox(event) {
   let button = event.target;
   let type = button.getAttribute("data-type");
-  if (type == 0 && currentInputBoxCount < maxBoxCount) currentInputBoxCount++;
-  else if (type == 1 && currentOutputBoxCount < maxBoxCount)
-    currentOutputBoxCount++;
+  if (type == 0 && inputBoxCount < maxBoxCount) inputBoxCount++;
+  else if (type == 1 && outputBoxCount < maxBoxCount) outputBoxCount++;
   createBoolBox();
 }
 
 function removeBox(event) {
   let button = event.target;
   let type = button.getAttribute("data-type");
-  if (type == 0 && currentInputBoxCount > minBoxCount) currentInputBoxCount--;
-  else if (type == 1 && currentOutputBoxCount > minBoxCount)
-    currentOutputBoxCount--;
+  if (type == 0 && inputBoxCount > minBoxCount) inputBoxCount--;
+  else if (type == 1 && outputBoxCount > minBoxCount) outputBoxCount--;
   createBoolBox();
 }
 
@@ -439,7 +425,8 @@ function getCircuit(rawData) {
   return { circuit: circuit, points: points };
 }
 
-function createGate(name, x = 0, y = 0, inputCount = defaultGateInputCount) {
+function createGate(name, x = 0, y = 0, inputCount = gateInputCount) {
+  inputCount = Math.max(2, inputCount);
   switch (name) {
     case "AND":
       return new AND(x, y, inputCount);
@@ -556,7 +543,10 @@ function saveGateGroup(name) {
     let input = [];
     let output = [];
     gt.input.forEach((inp) => {
-      if (!inp.connection) return;
+      if (!inp.connection) {
+        input.push(null);
+        return;
+      }
       let parent = inp.connection.start.parent;
       if (parent.isGate) input.push(null);
       else input.push(parent.index);
