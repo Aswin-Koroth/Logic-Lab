@@ -10,6 +10,7 @@
   --prompt-alert-cross: #f06825;
   --prompt-alert-text: #3c3c3b;
   --warning: #d02224;
+  --cursor: grab;
 }
 
 *,
@@ -169,6 +170,7 @@ body::-webkit-scrollbar {
 }
 .canvas {
   border-radius: 20px;
+  cursor: var(--cursor);
 }
 
 .btn {
@@ -204,11 +206,15 @@ body::-webkit-scrollbar {
   display: flex;
   justify-content: flex-start;
   align-items: flex-start;
+  cursor: var(--cursor);
 }
 .group {
   display: flex;
   flex-wrap: wrap;
   border-radius: 5px;
+}
+.gates .btn {
+  cursor: var(--cursor);
 }
 .default {
   background-color: #476076;
@@ -230,6 +236,7 @@ body::-webkit-scrollbar {
   display: flex;
   align-items: center;
   justify-content: center;
+  cursor: pointer;
 }
 .add::after,
 .add::before,

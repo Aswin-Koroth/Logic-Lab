@@ -14,18 +14,34 @@ function remove(element, list, count = 1) {
 }
 
 function drawArrow(context, startX, startY, endX, endY, color) {
-  //Only works for vertical down arrows
   let arrowHeadWidth = 10;
   let arrowHeadHeight = 10;
-  context.lineWidth = 1.5;
-  context.beginPath();
+  let lineWidth = 1.5;
+
+  let sign = Math.sign(startX - endX ? startX - endX : -1);
+
+  let deltaX = endX - startX; // X component of line
+  let deltaY = endY - startY; // Y component of line
+  // PI/2 - angle between the line and x axis = angle between arrow base and x axis
+  let angleX = Math.PI / 2 - Math.atan(deltaY / deltaX); // Math.PI/2 = 90 degree
+  // line length = line_end - arrow_head_height
+  let lineEndX = endX + sign * Math.sin(angleX) * arrowHeadHeight;
+  let lineEndY = endY + sign * Math.cos(angleX) * arrowHeadHeight;
+
+  context.lineWidth = lineWidth;
+  context.lineCap = "round";
   context.strokeStyle = color;
-  context.moveTo(startX, startY);
-  context.lineTo(endX, endY - arrowHeadHeight);
-  context.stroke();
   context.beginPath();
-  context.moveTo(endX - arrowHeadWidth / 2, endY - arrowHeadHeight);
-  context.lineTo(endX + arrowHeadWidth / 2, endY - arrowHeadHeight);
+  context.moveTo(startX, startY);
+  context.lineTo(lineEndX, lineEndY);
+  context.moveTo(
+    lineEndX - (arrowHeadWidth / 2) * Math.cos(angleX),
+    lineEndY + (arrowHeadWidth / 2) * Math.sin(angleX)
+  );
+  context.lineTo(
+    lineEndX + (arrowHeadWidth / 2) * Math.cos(angleX),
+    lineEndY - (arrowHeadWidth / 2) * Math.sin(angleX)
+  );
   context.lineTo(endX, endY);
   context.closePath();
   context.fill();
