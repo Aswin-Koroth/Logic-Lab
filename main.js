@@ -2,6 +2,7 @@
 const canvas = document.querySelector(".canvas"),
   ctx = canvas.getContext("2d");
 
+const root = document.querySelector(":root");
 const gateButtons = document.querySelectorAll(".gateBtn");
 const addButton = document.querySelectorAll(".add");
 const removeButton = document.querySelectorAll(".remove");
@@ -16,7 +17,14 @@ let currentSelectedGate = null;
 let snapable = false;
 
 let pressedKeys = [];
-let keyCodes = { control: 17, command: 91 };
+let keyCodes = {
+  control: 17,
+  command: 91,
+  delete: 46,
+  enter: 13,
+  plus: 107,
+  minus: 109,
+};
 
 let gateInputCount = 2;
 let inputBoxCount = 2;
@@ -28,10 +36,10 @@ const minBoxCount = 1;
 let GATES = [];
 let INPUTBOXES = [];
 let OUTPUTBOXES = [];
-// let GATEBUTTONS = {
-//   default: ["AND", "OR", "NOT", "NAND", "NOR", "XOR"],
-//   custom: [],
-// };
+let GATEBUTTONSLIST = {
+  default: ["AND", "OR", "NOT", "NAND", "NOR", "XOR"],
+  custom: [],
+};
 
 function main() {
   setTheme();
@@ -41,25 +49,24 @@ function main() {
   createCustomGateButtons();
 }
 
-function updateCanvas(timestamp) {
+function updateCanvas() {
   canvas.width = window.innerWidth - 120;
   canvas.height = window.innerHeight - 100;
   ctx.fillStyle = "red";
   ctx.fill();
-  //Mark gates for delete if out of frame
-  if (parseInt(timestamp) % 1000 == 0 && timestamp != 0) {
-    markForDelete();
+  if (GATES.length == 0) {
+    drawHelp(ctx);
   }
   //boolbox
   [...INPUTBOXES, ...OUTPUTBOXES].forEach((box) => box.update(ctx));
   //Gates
   GATES.forEach((gate) => {
-    if (gate.markedForDelete) deleteGate(gate);
+    if (gate.markedForDelete) {
+      deleteGate(gate);
+      return;
+    }
     gate.update(ctx, gate === currentSelectedGate);
   });
-  if (GATES.length == 0) {
-    drawHelp(ctx);
-  }
   //labels
   [...connectionPoints.input, ...connectionPoints.output].forEach((con) =>
     con.drawLabel(ctx)
@@ -68,7 +75,6 @@ function updateCanvas(timestamp) {
 }
 
 function setTheme() {
-  let root = document.querySelector(":root");
   canvas.style.backgroundColor = Theme.canvas;
   document.body.style.backgroundColor = Theme.body;
   root.style.setProperty("--addRemove-color", Theme.addRemove);
@@ -117,6 +123,8 @@ function drawHelp(context) {
   context.fillStyle = drawColor;
   context.font = "400 1.3em Montserrat";
   context.textBaseline = "middle";
+  context.textAlign = "center";
+
   context.fillText(
     "DRAG AND DROP GATES FROM LIST",
     canvas.width / 2,
@@ -206,14 +214,17 @@ function isSnapable(event) {
 }
 
 function setEventListeners() {
+  //canvas
   canvas.addEventListener("contextmenu", onRClick);
   canvas.addEventListener("click", onClick);
   canvas.addEventListener("mousedown", onMouseDown);
   canvas.addEventListener("mousemove", onMouseMove);
+
   addEventListener("mouseup", onMouseUp);
+  //keyboard
   addEventListener("keydown", keyPressed);
   addEventListener("keyup", keyRelease);
-
+  //buttons
   addButton.forEach((button) => {
     button.addEventListener("click", addBox);
   });
@@ -226,11 +237,21 @@ function setEventListeners() {
 }
 
 function keyPressed(event) {
-  // if (event.key == "Control" && !pressedKeys.includes("Control"))
   if (!pressedKeys.includes(event.keyCode)) pressedKeys.push(event.keyCode);
 }
 
 function keyRelease(event) {
+  switch (event.keyCode) {
+    case keyCodes.plus:
+      handleGateInputs(0, currentSelectedGate);
+      break;
+    case keyCodes.minus:
+      handleGateInputs(1, currentSelectedGate);
+      break;
+    case keyCodes.delete:
+      deleteGate(currentSelectedGate);
+      break;
+  }
   remove(event.keyCode, pressedKeys);
 }
 
@@ -269,6 +290,7 @@ function onMouseDown(event) {
     }
     currentSelectedGate = GATES[GATES.length - 1];
   }
+  // root.style.setProperty("--cursor", "grabbing"); ////////////
 }
 
 function onMouseMove(event) {
@@ -315,13 +337,7 @@ function onMouseUp(event) {
   if (event.button === 0) {
     if (tempSelection instanceof outputPoint) {
       if (snapable && snapable.connection == null) {
-        //temp replace
-        // let replace = snapable.connection != null;
         snapable.connect(tempSelection.connections[currentConLineIndex]);
-        // if (replace) {
-        //   remove(snapable.connection, snapable.connection.start.connections);
-        //   snapable.disconnect();
-        // }
         snapable = false;
       } else {
         tempSelection.disconnect(currentConLineIndex);
@@ -330,6 +346,9 @@ function onMouseUp(event) {
     tempSelection = null;
   }
   remove(event.button, pressedKeys); //removing mouse button from list
+  //Mark gates for delete if out of frame
+  markForDelete();
+  // root.style.setProperty("--cursor", "grab"); ///////////
 }
 
 function addBox(event) {
@@ -363,6 +382,7 @@ function createGateBtn(label) {
   button.addEventListener("mousedown", spawn);
   div.appendChild(button);
   parent.appendChild(div);
+  GATEBUTTONSLIST.custom.push(label);
 }
 
 function spawn(event) {
@@ -371,6 +391,7 @@ function spawn(event) {
   let fun = button.getAttribute("data-name");
   let index = GATES.push(createGate(fun, event.pageX, event.pageY)) - 1;
   currentSelectedGate = tempSelection = GATES[index];
+  // root.style.setProperty("--cursor", "grabbing"); ////////////
 }
 
 function getGateData(name) {
@@ -515,6 +536,10 @@ function showPrompt(prompt, func) {
   okBtn.addEventListener("click", () => {
     let name = textBox.value.trim();
     if (name == "") warningBox.innerText = "Text field is empty.";
+    else if (
+      [...GATEBUTTONSLIST.custom, GATEBUTTONSLIST.default].includes(name)
+    )
+      warningBox.innerText = "Name already exists.";
     else {
       cross.click();
       func(name);
@@ -585,6 +610,7 @@ function saveGateGroup(name) {
 }
 
 function deleteGate(gate) {
+  if (gate === null) return;
   //disconnect input and output connections
   [...gate.input, ...gate.output].forEach((con) => con.disconnect());
   //remove input connection points from input array
