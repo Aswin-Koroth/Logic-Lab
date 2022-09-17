@@ -191,4 +191,124 @@ const GATELIST = [
       output: ["DATA 3", "DATA 2", "DATA 1", "DATA 0"],
     },
   },
+  {
+    name: "BCD - 7_SEGMENT",
+    gates: [
+      "OR",
+      "OR",
+      "OR",
+      "OR",
+      "OR",
+      "OR",
+      "OR",
+      "AND",
+      "AND",
+      "AND",
+      "AND",
+      "AND",
+      "AND",
+      "AND",
+      "NOT",
+      "NOT",
+      "NOT",
+      "AND",
+      "AND",
+    ],
+    connections: [
+      { input: [null, null, 0, 2], output: [[[0]]] },
+      { input: [null, null, null], output: [[[1]]] },
+      { input: [1, null, 3], output: [[[2]]] },
+      { input: [0, null, null, null, null], output: [[[3]]] },
+      { input: [null, null], output: [[[4]]] },
+      { input: [null, null, null, 0], output: [[[5]]] },
+      { input: [null, null, 0, null], output: [[[6]]] },
+      { input: [1, 3], output: [[[0, 0]]] },
+      {
+        input: [null, null],
+        output: [
+          [
+            [0, 1],
+            [3, 1],
+            [4, 1],
+          ],
+        ],
+      },
+      { input: [2, 3], output: [[[1, 0]]] },
+      {
+        input: [null, null],
+        output: [
+          [
+            [1, 2],
+            [5, 0],
+          ],
+        ],
+      },
+      {
+        input: [2, null],
+        output: [
+          [
+            [3, 2],
+            [4, 0],
+            [6, 0],
+          ],
+        ],
+      },
+      {
+        input: [null, 2],
+        output: [
+          [
+            [3, 3],
+            [6, 3],
+          ],
+        ],
+      },
+      { input: [1, null], output: [[[5, 1]]] },
+      {
+        input: [1],
+        output: [
+          [
+            [8, 0],
+            [12, 0],
+            [1, 1],
+          ],
+        ],
+      },
+      {
+        input: [2],
+        output: [
+          [
+            [10, 0],
+            [2, 1],
+            [17, 1],
+          ],
+        ],
+      },
+      {
+        input: [3],
+        output: [
+          [
+            [8, 1],
+            [10, 1],
+            [11, 1],
+            [13, 1],
+          ],
+        ],
+      },
+      {
+        input: [1, null],
+        output: [
+          [
+            [18, 1],
+            [5, 2],
+            [6, 1],
+          ],
+        ],
+      },
+      { input: [3, null], output: [[[3, 4]]] },
+    ],
+    label: {
+      input: ["BIT 3", "BIT 2", "BIT 1", "BIT 0"],
+      output: ["A", "B", "C", "D", "E", "F", "G"],
+    },
+  },
 ];

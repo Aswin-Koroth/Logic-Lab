@@ -4,9 +4,15 @@
     <meta charset="UTF-8" />
     <title>Logic Canvas</title>
     <link rel="stylesheet" href="style.css" />
+    <script src="themes.js" defer></script>
+    <script src="utils.js" defer></script>
+    <script src="rawData.js" defer></script>
+    <script src="objects.js" defer></script>
+    <script src="main.js" defer></script>
   </head>
   <body>
-    <div class="bg"></div>
+    <div class="bg"><!-- Paused --></div>
+    <!-- Prompt Box -->
     <div class="promptbox">
       <div class="titlebar">
         <span></span>
@@ -17,9 +23,11 @@
           <span class="warning"></span>
           <input type="text" class="text" />
         </div>
-        <div class="okbtn"><span>OK</span></div>
+        <div class="btn okbtn"><span>OK</span></div>
       </div>
     </div>
+    <!-- Prompt Box end -->
+    <!-- Alert box -->
     <div class="alertbox">
       <div class="titlebar">
         <span>ALERT!!!</span>
@@ -29,40 +37,45 @@
         <div></div>
       </div>
     </div>
+    <!-- Alert box end -->
+    <div class="tools">
+      <div class="btn toolBtn" onclick="addCustomGate()">CREATE</div>
+      <div class="btn toolBtn" onclick="deleteGate(currentSelectedGate)">
+        DELETE
+      </div>
+      <div
+        class="btn toolBtn"
+        onclick="handleGateInputs(0,currentSelectedGate)"
+      >
+        ADD INPUT
+      </div>
+      <div
+        class="btn toolBtn"
+        onclick="handleGateInputs(1, currentSelectedGate)"
+      >
+        REMOVE INPUT
+      </div>
+    </div>
     <div class="container">
       <div>
-        <div class="btn add" data-type="0">+</div>
-        <div class="btn remove" data-type="0">-</div>
+        <div class="add" data-type="0"></div>
+        <div class="remove" data-type="0"></div>
       </div>
       <canvas class="canvas" oncontextmenu="return false;"></canvas>
       <div>
-        <div class="btn add" data-type="1">+</div>
-        <div class="btn remove" data-type="1">-</div>
+        <div class="add" data-type="1"></div>
+        <div class="remove" data-type="1"></div>
       </div>
     </div>
-    <div class="buttons">
-      <div class="group">
-        <div class="btn dlt" onclick="addCustomGate()">CREATE</div>
-        <div class="btn dlt" onclick="deleteGate(currentSelectedGate)">
-          DELETE
-        </div>
+    <div class="gates">
+      <div class="group default">
+        <div class="btn gateBtn" data-name="AND">AND</div>
+        <div class="btn gateBtn" data-name="OR">OR</div>
+        <div class="btn gateBtn" data-name="NOT">NOT</div>
+        <div class="btn gateBtn" data-name="NAND">NAND</div>
+        <div class="btn gateBtn" data-name="NOR">NOR</div>
+        <div class="btn gateBtn" data-name="XOR">XOR</div>
       </div>
-      <div class="group">
-        <div class="btn gate" data-name="AND">AND</div>
-        <div class="btn gate" data-name="OR">OR</div>
-        <div class="btn gate" data-name="NOT">NOT</div>
-        <div class="btn gate" data-name="NAND">NAND</div>
-        <div class="btn gate" data-name="NOR">NOR</div>
-        <div class="btn gate" data-name="XOR">XOR</div>
-      </div>
-      <div class="group custom"></div>
     </div>
-
-    <!-- <div class="buttons custom"></div> -->
-
-    <script src="utils.js"></script>
-    <script src="rawData.js"></script>
-    <script src="objects.js"></script>
-    <script src="main.js"></script>
   </body>
 </html>

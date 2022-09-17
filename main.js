@@ -1,13 +1,14 @@
-//LOGIC SIM V2.0
+//LOGIC SIM V3.0
 const canvas = document.querySelector(".canvas"),
   ctx = canvas.getContext("2d");
 
-const gateButtons = document.querySelectorAll(".gate");
+const root = document.querySelector(":root");
+const gateButtons = document.querySelectorAll(".gateBtn");
 const addButton = document.querySelectorAll(".add");
 const removeButton = document.querySelectorAll(".remove");
 const bg = document.querySelector(".bg");
 
-const loadToMemory = false;
+const loadToMemory = true;
 let paused = false;
 
 let tempSelection = null;
@@ -16,27 +17,67 @@ let currentSelectedGate = null;
 let snapable = false;
 
 let pressedKeys = [];
-let keyCodes = { control: 17, command: 91 };
+let keyCodes = {
+  control: 17,
+  command: 91,
+  delete: 46,
+  enter: 13,
+  plus: 107,
+  minus: 109,
+};
 
-const defaultGateInputCount = 2;
-const defaultInputBoxCount = 2;
-const defaultOutputBoxCount = 2;
-let defaultBoxPackingCount = 13; //changes with canvas height
-
-let currentInputBoxCount = defaultInputBoxCount;
-let currentOutputBoxCount = defaultOutputBoxCount;
+let gateInputCount = 2;
+let inputBoxCount = 2;
+let outputBoxCount = 2;
+let boxPackingCount = 13; //changes with canvas height
 const maxBoxCount = 14;
 const minBoxCount = 1;
 
 let GATES = [];
 let INPUTBOXES = [];
 let OUTPUTBOXES = [];
+let GATEBUTTONSLIST = {
+  default: ["AND", "OR", "NOT", "NAND", "NOR", "XOR"],
+  custom: [],
+};
 
 function main() {
+  setTheme();
   setEventListeners();
   updateCanvas();
   createBoolBox();
   createCustomGateButtons();
+}
+
+function updateCanvas() {
+  canvas.width = window.innerWidth - 120;
+  canvas.height = window.innerHeight - 100;
+  ctx.fillStyle = "red";
+  ctx.fill();
+  if (GATES.length == 0) {
+    drawHelp(ctx);
+  }
+  //boolbox
+  [...INPUTBOXES, ...OUTPUTBOXES].forEach((box) => box.update(ctx));
+  //Gates
+  GATES.forEach((gate) => {
+    if (gate.markedForDelete) {
+      deleteGate(gate);
+      return;
+    }
+    gate.update(ctx, gate === currentSelectedGate);
+  });
+  //labels
+  [...connectionPoints.input, ...connectionPoints.output].forEach((con) =>
+    con.drawLabel(ctx)
+  );
+  requestAnimationFrame(updateCanvas);
+}
+
+function setTheme() {
+  canvas.style.backgroundColor = Theme.canvas;
+  document.body.style.backgroundColor = Theme.body;
+  root.style.setProperty("--addRemove-color", Theme.addRemove);
 }
 
 function createCustomGateButtons() {
@@ -49,60 +90,57 @@ function createCustomGateButtons() {
 
 function createBoolBox() {
   let radius = boolBox.radius;
-  defaultBoxPackingCount = Math.round(canvas.height / (2 * radius) - 1);
+  boxPackingCount = Math.round(canvas.height / (2 * radius) - 1);
   //INPUTS
-  if (INPUTBOXES[currentInputBoxCount] !== undefined) {
-    INPUTBOXES[currentInputBoxCount].connection.disconnect();
+  if (INPUTBOXES[inputBoxCount] !== undefined) {
+    INPUTBOXES[inputBoxCount].connection.disconnect();
     INPUTBOXES.pop();
   }
-  for (let i = 0; i < currentInputBoxCount; i++) {
-    let fac = (defaultBoxPackingCount - currentInputBoxCount) * radius;
+  for (let i = 0; i < inputBoxCount; i++) {
+    let fac = (boxPackingCount - inputBoxCount) * radius;
     let x = 40;
-    let y = lerp(
-      fac,
-      canvas.height - fac,
-      (i + 1) / (currentInputBoxCount + 1)
-    );
+    let y = lerp(fac, canvas.height - fac, (i + 1) / (inputBoxCount + 1));
     if (INPUTBOXES[i] === undefined) INPUTBOXES.push(new inputBox(x, y, i));
     else INPUTBOXES[i].position.y = y;
   }
   //OUTPUTS
-  if (OUTPUTBOXES[currentOutputBoxCount] !== undefined) {
-    OUTPUTBOXES[currentOutputBoxCount].connection.disconnect();
+  if (OUTPUTBOXES[outputBoxCount] !== undefined) {
+    OUTPUTBOXES[outputBoxCount].connection.disconnect();
     OUTPUTBOXES.pop();
   }
-  for (let i = 0; i < currentOutputBoxCount; i++) {
-    let fac = (defaultBoxPackingCount - currentOutputBoxCount) * radius;
+  for (let i = 0; i < outputBoxCount; i++) {
+    let fac = (boxPackingCount - outputBoxCount) * radius;
     let x = canvas.width - 40;
-    let y = lerp(
-      fac,
-      canvas.height - fac,
-      (i + 1) / (currentOutputBoxCount + 1)
-    );
+    let y = lerp(fac, canvas.height - fac, (i + 1) / (outputBoxCount + 1));
     if (OUTPUTBOXES[i] === undefined) OUTPUTBOXES.push(new outputBox(x, y, i));
     else OUTPUTBOXES[i].position.y = y;
   }
 }
 
-function updateCanvas(timestamp) {
-  canvas.width = window.innerWidth - 80;
-  canvas.height = window.innerHeight - 100;
-  //Mark gates for delete if out of frame
-  if (parseInt(timestamp) % 1000 == 0 && timestamp != 0) {
-    markForDelete();
-  }
-  //boolbox
-  [...INPUTBOXES, ...OUTPUTBOXES].forEach((box) => box.update(ctx));
-  //Gates
-  GATES.forEach((gate) => {
-    if (gate.markedForDelete) deleteGate(gate);
-    gate.update(ctx, gate === currentSelectedGate);
-  });
-  //labels
-  [...connectionPoints.input, ...connectionPoints.output].forEach((con) =>
-    con.drawLabel(ctx)
+function drawHelp(context) {
+  let drawColor = "#666666";
+  //Text
+  context.fillStyle = drawColor;
+  context.font = "400 1.3em Montserrat";
+  context.textBaseline = "middle";
+  context.textAlign = "center";
+
+  context.fillText(
+    "DRAG AND DROP GATES FROM LIST",
+    canvas.width / 2,
+    canvas.height / 2
   );
-  requestAnimationFrame(updateCanvas);
+  //arrow and line
+  let x = canvas.width / 2;
+  let y = canvas.height / 2 + canvas.height / 7;
+  let arrowLength = canvas.height - 60 - y;
+  drawArrow(context, x, y, x, y + arrowLength, drawColor);
+  //Line
+  context.lineWidth = 1;
+  context.beginPath();
+  context.moveTo(80, canvas.height - 20);
+  context.lineTo(canvas.width - 80, canvas.height - 20);
+  context.stroke();
 }
 
 function markForDelete() {
@@ -176,14 +214,17 @@ function isSnapable(event) {
 }
 
 function setEventListeners() {
+  //canvas
   canvas.addEventListener("contextmenu", onRClick);
   canvas.addEventListener("click", onClick);
   canvas.addEventListener("mousedown", onMouseDown);
   canvas.addEventListener("mousemove", onMouseMove);
+
   addEventListener("mouseup", onMouseUp);
+  //keyboard
   addEventListener("keydown", keyPressed);
   addEventListener("keyup", keyRelease);
-
+  //buttons
   addButton.forEach((button) => {
     button.addEventListener("click", addBox);
   });
@@ -196,11 +237,21 @@ function setEventListeners() {
 }
 
 function keyPressed(event) {
-  // if (event.key == "Control" && !pressedKeys.includes("Control"))
   if (!pressedKeys.includes(event.keyCode)) pressedKeys.push(event.keyCode);
 }
 
 function keyRelease(event) {
+  switch (event.keyCode) {
+    case keyCodes.plus:
+      handleGateInputs(0, currentSelectedGate);
+      break;
+    case keyCodes.minus:
+      handleGateInputs(1, currentSelectedGate);
+      break;
+    case keyCodes.delete:
+      deleteGate(currentSelectedGate);
+      break;
+  }
   remove(event.keyCode, pressedKeys);
 }
 
@@ -239,6 +290,7 @@ function onMouseDown(event) {
     }
     currentSelectedGate = GATES[GATES.length - 1];
   }
+  // root.style.setProperty("--cursor", "grabbing"); ////////////
 }
 
 function onMouseMove(event) {
@@ -285,13 +337,7 @@ function onMouseUp(event) {
   if (event.button === 0) {
     if (tempSelection instanceof outputPoint) {
       if (snapable && snapable.connection == null) {
-        //temp replace
-        // let replace = snapable.connection != null;
         snapable.connect(tempSelection.connections[currentConLineIndex]);
-        // if (replace) {
-        //   remove(snapable.connection, snapable.connection.start.connections);
-        //   snapable.disconnect();
-        // }
         snapable = false;
       } else {
         tempSelection.disconnect(currentConLineIndex);
@@ -300,35 +346,43 @@ function onMouseUp(event) {
     tempSelection = null;
   }
   remove(event.button, pressedKeys); //removing mouse button from list
+  //Mark gates for delete if out of frame
+  markForDelete();
+  // root.style.setProperty("--cursor", "grab"); ///////////
 }
 
 function addBox(event) {
   let button = event.target;
   let type = button.getAttribute("data-type");
-  if (type == 0 && currentInputBoxCount < maxBoxCount) currentInputBoxCount++;
-  else if (type == 1 && currentOutputBoxCount < maxBoxCount)
-    currentOutputBoxCount++;
+  if (type == 0 && inputBoxCount < maxBoxCount) inputBoxCount++;
+  else if (type == 1 && outputBoxCount < maxBoxCount) outputBoxCount++;
   createBoolBox();
 }
 
 function removeBox(event) {
   let button = event.target;
   let type = button.getAttribute("data-type");
-  if (type == 0 && currentInputBoxCount > minBoxCount) currentInputBoxCount--;
-  else if (type == 1 && currentOutputBoxCount > minBoxCount)
-    currentOutputBoxCount--;
+  if (type == 0 && inputBoxCount > minBoxCount) inputBoxCount--;
+  else if (type == 1 && outputBoxCount > minBoxCount) outputBoxCount--;
   createBoolBox();
 }
 
 function createGateBtn(label) {
+  let parent = document.querySelector(".gates");
   let div = document.querySelector(".custom");
+  if (div == null) {
+    div = document.createElement("div");
+    div.classList.add("group", "custom");
+  }
   let button = document.createElement("div");
-  button.classList.add("btn", "gate");
+  button.classList.add("btn", "gateBtn");
   button.setAttribute("data-name", label);
   button.innerText = label;
 
   button.addEventListener("mousedown", spawn);
   div.appendChild(button);
+  parent.appendChild(div);
+  GATEBUTTONSLIST.custom.push(label);
 }
 
 function spawn(event) {
@@ -337,6 +391,7 @@ function spawn(event) {
   let fun = button.getAttribute("data-name");
   let index = GATES.push(createGate(fun, event.pageX, event.pageY)) - 1;
   currentSelectedGate = tempSelection = GATES[index];
+  // root.style.setProperty("--cursor", "grabbing"); ////////////
 }
 
 function getGateData(name) {
@@ -362,7 +417,10 @@ function getCircuit(rawData) {
   let circuit = [];
   let points = { input: [[]], output: [] };
   //creating all gates
-  gate.forEach((g) => circuit.push(createGate(g)));
+  gate.forEach((g, index) => {
+    let inputCount = ob[index].input.length;
+    circuit.push(createGate(g, 0, 0, inputCount));
+  });
 
   circuit.forEach((gt, index) => {
     //setting output points
@@ -388,20 +446,21 @@ function getCircuit(rawData) {
   return { circuit: circuit, points: points };
 }
 
-function createGate(name, x = 0, y = 0) {
+function createGate(name, x = 0, y = 0, inputCount = gateInputCount) {
+  inputCount = Math.max(2, inputCount);
   switch (name) {
     case "AND":
-      return new AND(x, y, defaultGateInputCount);
+      return new AND(x, y, inputCount);
     case "OR":
-      return new OR(x, y, defaultGateInputCount);
+      return new OR(x, y, inputCount);
     case "NOT":
       return new NOT(x, y);
     case "NAND":
-      return new NAND(x, y, defaultGateInputCount);
+      return new NAND(x, y, inputCount);
     case "NOR":
-      return new NOR(x, y, defaultGateInputCount);
+      return new NOR(x, y, inputCount);
     case "XOR":
-      return new XOR(x, y, defaultGateInputCount);
+      return new XOR(x, y, inputCount);
     default:
       gateData = getGateData(name);
       return new customGate(
@@ -477,10 +536,17 @@ function showPrompt(prompt, func) {
   okBtn.addEventListener("click", () => {
     let name = textBox.value.trim();
     if (name == "") warningBox.innerText = "Text field is empty.";
+    else if (
+      [...GATEBUTTONSLIST.custom, GATEBUTTONSLIST.default].includes(name)
+    )
+      warningBox.innerText = "Name already exists.";
     else {
       cross.click();
       func(name);
     }
+  });
+  textBox.addEventListener("keydown", (event) => {
+    if (event.key == "Enter") okBtn.click();
   });
 }
 
@@ -502,7 +568,10 @@ function saveGateGroup(name) {
     let input = [];
     let output = [];
     gt.input.forEach((inp) => {
-      if (!inp.connection) return;
+      if (!inp.connection) {
+        input.push(null);
+        return;
+      }
       let parent = inp.connection.start.parent;
       if (parent.isGate) input.push(null);
       else input.push(parent.index);
@@ -541,6 +610,7 @@ function saveGateGroup(name) {
 }
 
 function deleteGate(gate) {
+  if (gate === null) return;
   //disconnect input and output connections
   [...gate.input, ...gate.output].forEach((con) => con.disconnect());
   //remove input connection points from input array
@@ -551,6 +621,16 @@ function deleteGate(gate) {
     remove(gate.output[i], connectionPoints.output);
   //remove gate from array
   remove(gate, GATES);
+  currentSelectedGate = null;
+}
+
+function handleGateInputs(mode, gate) {
+  //mode = 0 => increment
+  //mode = 1 => decrement
+  if (gate != null) {
+    if (mode == 0) gate.incrementInputCount();
+    else if (mode == 1) gate.decrementInputCount();
+  }
 }
 
 main();
