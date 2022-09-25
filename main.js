@@ -41,6 +41,9 @@ let GATEBUTTONSLIST = {
   custom: [],
 };
 
+var a = new svnSeg(900, 20);
+var b = new svnSeg(900, 220);
+var c = new svnSeg(900, 420);
 function main() {
   setTheme();
   setEventListeners();
@@ -52,8 +55,6 @@ function main() {
 function updateCanvas() {
   canvas.width = window.innerWidth - 120;
   canvas.height = window.innerHeight - 100;
-  ctx.fillStyle = "red";
-  ctx.fill();
   if (GATES.length == 0) {
     drawHelp(ctx);
   }
@@ -71,6 +72,9 @@ function updateCanvas() {
   [...connectionPoints.input, ...connectionPoints.output].forEach((con) =>
     con.drawLabel(ctx)
   );
+  a.update(ctx);
+  b.update(ctx);
+  c.update(ctx);
   requestAnimationFrame(updateCanvas);
 }
 
@@ -243,10 +247,10 @@ function keyPressed(event) {
 function keyRelease(event) {
   switch (event.keyCode) {
     case keyCodes.plus:
-      handleGateInputs(0, currentSelectedGate);
+      handleGateInputs(0, currentSelectedGate); //mode = 0 => increment
       break;
     case keyCodes.minus:
-      handleGateInputs(1, currentSelectedGate);
+      handleGateInputs(1, currentSelectedGate); //mode = 1 => decrement
       break;
     case keyCodes.delete:
       deleteGate(currentSelectedGate);

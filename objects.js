@@ -5,6 +5,117 @@ function getColor(bool) {
   return bool ? Theme.bool.true : Theme.bool.false;
 }
 
+class svnSeg {
+  constructor(x, y) {
+    this.position = { x: x, y: y };
+    this.height = 200;
+    this.width = 120;
+    this.offset = { x: this.width / 2, y: this.height / 2 };
+    this.conLabel = { input: ["a", "b", "c", "d", "e", "f", "g"] };
+    this.input = [];
+    this.data = {
+      0: {
+        x: this.position.x + 25,
+        y: this.position.y + 5,
+        width: 70,
+        height: 20,
+      },
+      1: {
+        x: this.position.x + 90,
+        y: this.position.y + 20,
+        width: 20,
+        height: 70,
+      },
+      2: {
+        x: this.position.x + 90,
+        y: this.position.y + 100,
+        width: 20,
+        height: 70,
+      },
+      3: {
+        x: this.position.x + 25,
+        y: this.position.y + 165,
+        width: 70,
+        height: 20,
+      },
+      4: {
+        x: this.position.x + 10,
+        y: this.position.y + 100,
+        width: 20,
+        height: 70,
+      },
+      5: {
+        x: this.position.x + 10,
+        y: this.position.y + 20,
+        width: 20,
+        height: 70,
+      },
+      6: {
+        x: this.position.x + 25,
+        y: this.position.y + 85,
+        width: 70,
+        height: 20,
+      },
+    };
+    this.#setConnectionPoints();
+  }
+
+  draw(context) {
+    //Body
+    context.beginPath();
+    context.lineWidth = 0.4; //temp
+    context.rect(this.position.x, this.position.y, this.width, this.height);
+    context.fillStyle = "black";
+    context.fill();
+    context.stroke();
+    //seg
+    for (let i = 0; i < this.input.length; i++) {
+      context.beginPath();
+      if (this.input[i].value) {
+        context.fillStyle = "red";
+      } else {
+        context.fillStyle = "#111111";
+      }
+      let data = this.data[i];
+      context.rect(data.x, data.y, data.width, data.height);
+      context.fill();
+      context.stroke();
+    }
+    this.input.forEach((point) => point.update(context));
+  }
+  #setConnectionPoints() {
+    for (let i = 0; i < 7; i++) {
+      if (this.input[i] === undefined) {
+        let loc = this.#getConPointLoc(i);
+        this.input.push(
+          new inputPoint(
+            loc.x,
+            loc.y,
+            { isGate: this, index: i },
+            this.conLabel.input[i]
+          )
+        );
+      }
+    }
+  }
+  #getConPointLoc(i) {
+    let loc = { x: null, y: null };
+    let count = 7;
+    loc.x = this.position.x;
+    count = 7;
+    loc.y = lerp(
+      this.position.y,
+      this.position.y + this.height,
+      (i + 1) / (count + 1)
+    );
+    return loc;
+  }
+
+  update(context) {
+    this.draw(context);
+  }
+}
+
 class gate {
   constructor(
     x,
