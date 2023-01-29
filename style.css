@@ -188,17 +188,81 @@ body::-webkit-scrollbar {
   align-items: center;
 }
 
+.top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 5px 70px 0 70px;
+}
+
 .tools {
   display: flex;
   align-items: center;
   justify-content: flex-start;
-  width: 100%;
-  padding: 5px 70px 0 70px;
 }
+
 .toolBtn {
   background: var(--toolButton);
-  height: 2.5em;
+  width: 2.5em;
+  border-radius: 100px;
+  transition: all 0.1s ease-out;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  overflow: hidden;
 }
+
+.toolBtn:hover {
+  width: 8em;
+}
+
+.tIcon {
+  height: 100%;
+  border-radius: 100px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.tIcon img {
+  height: 20px;
+  width: 2.5em;
+}
+
+.toolBtn:hover .tName {
+  display: block;
+}
+
+.git {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  overflow: hidden;
+  white-space: nowrap;
+  width: 30px;
+  margin: 0.3em;
+  text-decoration: none;
+  color: var(--addRemove-color);
+  transition: all 0.4s ease-out;
+}
+
+.git:hover {
+  width: 145px;
+}
+
+.gitIcon {
+  height: 30px;
+  width: 30px;
+  margin: 0 2px;
+  transition: transform 0.4s ease-out;
+}
+
+.git:hover .gitIcon {
+  transform: rotate(-360deg);
+}
+
 .gates {
   width: 100%;
   padding: 5px 70px 0 70px;
