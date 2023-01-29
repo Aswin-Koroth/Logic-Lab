@@ -125,11 +125,7 @@ function drawHelp(context) {
   context.textBaseline = "middle";
   context.textAlign = "center";
 
-  context.fillText(
-    "DRAG AND DROP GATES FROM LIST",
-    canvas.width / 2,
-    canvas.height / 2
-  );
+  context.fillText("DRAG AND DROP", canvas.width / 2, canvas.height / 2);
   //arrow and line
   let x = canvas.width / 2;
   let y = canvas.height / 2 + canvas.height / 7;
