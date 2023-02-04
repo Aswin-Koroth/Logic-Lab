@@ -98,7 +98,7 @@ function createBoolBox() {
   }
   for (let i = 0; i < inputBoxCount; i++) {
     let fac = (boxPackingCount - inputBoxCount) * radius;
-    let x = 40;
+    let x = 40; //distance from edge
     let y = lerp(fac, canvas.height - fac, (i + 1) / (inputBoxCount + 1));
     if (INPUTBOXES[i] === undefined) INPUTBOXES.push(new inputBox(x, y, i));
     else INPUTBOXES[i].position.y = y;
@@ -110,7 +110,7 @@ function createBoolBox() {
   }
   for (let i = 0; i < outputBoxCount; i++) {
     let fac = (boxPackingCount - outputBoxCount) * radius;
-    let x = canvas.width - 40;
+    let x = canvas.width - 40; //distance from edge
     let y = lerp(fac, canvas.height - fac, (i + 1) / (outputBoxCount + 1));
     if (OUTPUTBOXES[i] === undefined) OUTPUTBOXES.push(new outputBox(x, y, i));
     else OUTPUTBOXES[i].position.y = y;

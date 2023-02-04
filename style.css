@@ -9,7 +9,7 @@
   --prompt-alert-cross: #f06825;
   --prompt-alert-text: #3c3c3b;
   --warning: #d02224;
-  --cursor: default;
+  --cursor: grab;
 }
 
 *,
@@ -281,11 +281,13 @@ body::-webkit-scrollbar {
 }
 .default {
   background-color: #476076;
+  width: 400px;
 }
+
 .gateBtn {
   width: fit-content;
   min-width: 4em;
-  padding: 0 0.5em 0 0.5em;
+  padding: 0 0.4em;
   background: var(--gateButton);
 }
 /* add/remove buttons */

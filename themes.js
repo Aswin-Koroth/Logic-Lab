@@ -6,7 +6,7 @@ Themes = {
     body: "#1e1e1e",
     canvas: "#3c3c3b",
   },
-  old: {
+  v1: {
     body: "#2d3142",
     canvas: "#222831",
     gate: { main: "#613dc1", text: "white" },
