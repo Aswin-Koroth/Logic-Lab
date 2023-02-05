@@ -13,6 +13,33 @@ function remove(element, list, count = 1) {
   }
 }
 
+function isInCircle(event, circleX, circleY, radius) {
+  let x = event.offsetX - circleX;
+  let y = event.offsetY - circleY;
+  hyp = Math.hypot(x, y);
+  return hyp <= radius;
+}
+
+function showAlert(alert) {
+  const alertbox = document.querySelector(".alertbox");
+  const cross = document.querySelector(".alertbox .cross");
+  const prompt = document.querySelector(".alertbox .prompt");
+
+  togglePause();
+  prompt.innerText = alert;
+  alertbox.style.display = "block";
+  cross.addEventListener(
+    "click",
+    () => {
+      alertbox.style.display = "none";
+      togglePause();
+    },
+    {
+      once: true,
+    }
+  );
+}
+
 function drawArrow(context, startX, startY, endX, endY, color) {
   let arrowHeadWidth = 10;
   let arrowHeadHeight = 10;

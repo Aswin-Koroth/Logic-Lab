@@ -8,7 +8,8 @@
   --prompt-alert-title: rgba(255, 255, 255, 0.85);
   --prompt-alert-cross: #f06825;
   --prompt-alert-text: #3c3c3b;
-  --warning: #d02224;
+  --warning: #f06825;
+  /* --warning: #d02224; */
   --cursor: grab;
 }
 
@@ -66,6 +67,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  cursor: pointer;
 }
 .cross::before,
 .cross::after {
