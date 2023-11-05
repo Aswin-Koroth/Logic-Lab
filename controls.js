@@ -118,13 +118,16 @@ function onMouseMove(event) {
       con.position.y,
       connectionPoint.radius
     );
-    if (
-      isIn &&
-      (pressedKeys.includes(keyCodes.control) ||
-        pressedKeys.includes(keyCodes.command))
-    ) {
-      con.hover = true;
-    } else con.hover = false;
+    if (isIn) {
+      con.mouseOver.hover = true;
+      // console.log(con.mouseOver);
+      if (
+        pressedKeys.includes(keyCodes.control) ||
+        pressedKeys.includes(keyCodes.command)
+      ) {
+        con.mouseOver.label = true;
+      }
+    } else con.mouseOver = { hover: false, label: false };
   });
 }
 

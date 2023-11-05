@@ -73,9 +73,9 @@ function updateCanvas() {
     gate.update(ctx, gate === currentSelectedGate);
   });
   //labels
-  [...connectionPoints.input, ...connectionPoints.output].forEach((con) =>
-    con.drawLabel(ctx)
-  );
+  // [...connectionPoints.input, ...connectionPoints.output].forEach((con) =>
+  //   con.drawLabel(ctx)
+  // );
   requestAnimationFrame(updateCanvas);
 }
 

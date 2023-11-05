@@ -260,7 +260,7 @@ class connectionPoint {
     this.value = false;
 
     this.offset = 10; //Distance of connection point from parent
-    this.hover = false;
+    this.mouserOver = { hover: false, label: false };
     this.parent = { isGate: parent.isGate, index: parent.index };
   }
 
@@ -275,13 +275,18 @@ class connectionPoint {
       0,
       2 * Math.PI
     );
-    context.fillStyle = getColor(this.value);
+
+    // console.log(this.mouserOver.hover);
+    if (this.mouserOver.hover) context.fillStyle = "white";
+    else context.fillStyle = getColor(this.value);
     context.fill();
     context.stroke();
     this.drawConLine(context);
   }
+
   drawLabel(context) {
-    if (this.hover) {
+    if (this.mouserOver.label) {
+      console.log("hello");
       //label frame
       context.beginPath();
       context.lineWidth = 1; //temp
