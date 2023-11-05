@@ -175,7 +175,6 @@ class customGate extends gate {
     });
 
     this.output.forEach((out, index) => {
-      // console.log(this.groupOutput);
       out.value = this.groupOutput[index].value;
     });
   }
@@ -246,9 +245,16 @@ class XOR extends OR {
   }
   logic() {
     super.logic();
-    let count = 0;
-    for (let i = 0; i < this.inputCount; i++) if (this.input[i].value) count++;
-    if (count == this.inputCount) this.output[0].value = false;
+    // let count = 0;
+    // for (let i = 0; i < this.inputCount; i++) if (this.input[i].value) count++;
+    // if (count == this.inputCount) this.output[0].value = false;
+    let a = this.input[0].value;
+    let b = this.input[1].value;
+    let output = !(this.input[0].value == this.input[1].value);
+    for (let i = 2; i < this.inputCount; i++) {
+      output = !(output == this.input[i].value);
+    }
+    this.output[0].value = output;
   }
 }
 
@@ -276,7 +282,6 @@ class connectionPoint {
       2 * Math.PI
     );
 
-    // console.log(this.mouseOver.hover);
     if (this.mouseOver.hover) context.fillStyle = "white";
     else context.fillStyle = getColor(this.value);
     context.fill();
@@ -286,7 +291,6 @@ class connectionPoint {
 
   drawLabel(context) {
     if (this.mouseOver.label) {
-      console.log("hello");
       //label frame
       context.beginPath();
       context.lineWidth = 1; //temp

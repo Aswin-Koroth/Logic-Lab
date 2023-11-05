@@ -124,9 +124,7 @@ function onMouseMove(event) {
         pressedKeys.includes(keyCodes.control) ||
         pressedKeys.includes(keyCodes.command)
       ) {
-        console.log(con);
         con.mouseOver.label = true;
-        console.log(con);
       }
     } else con.mouseOver = { hover: false, label: false };
   });
