@@ -120,12 +120,13 @@ function onMouseMove(event) {
     );
     if (isIn) {
       con.mouseOver.hover = true;
-      // console.log(con.mouseOver);
       if (
         pressedKeys.includes(keyCodes.control) ||
         pressedKeys.includes(keyCodes.command)
       ) {
+        console.log(con);
         con.mouseOver.label = true;
+        console.log(con);
       }
     } else con.mouseOver = { hover: false, label: false };
   });
