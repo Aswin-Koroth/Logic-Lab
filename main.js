@@ -3,6 +3,7 @@ const canvas = document.querySelector(".canvas"),
   ctx = canvas.getContext("2d");
 
 const root = document.querySelector(":root");
+const preloader = document.querySelector(".preloader");
 const gateButtons = document.querySelectorAll(".gateBtn");
 const addButton = document.querySelectorAll(".add");
 const removeButton = document.querySelectorAll(".remove");
@@ -476,6 +477,16 @@ function handleGateInputs(mode, gate) {
     else if (mode == 1) gate.decrementInputCount();
   }
 }
+
+document.body.scroll = "no";
+window.addEventListener("load", () => {
+  preloader.style.opacity = "0";
+  setInterval(() => {
+    preloader.style.display = "none";
+  }, 300);
+  document.body.scroll = "yes";
+  // preloader.style.display = "none";
+});
 
 main();
 

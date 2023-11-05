@@ -12,6 +12,7 @@
     <script src="main.js" defer></script>
   </head>
   <body>
+    <div class="preloader"><span> Loading... </span></div>
     <div class="bg"><!-- Paused --></div>
     <!-- Prompt Box -->
     <div class="promptbox">
@@ -53,19 +54,25 @@
           </div>
           <div class="tName">DELETE</div>
         </div>
-        <div class="btn toolBtn" onclick="handleGateInputs(0,currentSelectedGate)">
-        <span class="tIcon"><img src="icons/addCon.svg" alt="Add" /></span><span class="tName">ADD INPUT</span></span>
+        <div
+          class="btn toolBtn"
+          onclick="handleGateInputs(0,currentSelectedGate)"
+        >
+          <span class="tIcon"><img src="icons/addCon.svg" alt="Add" /></span
+          ><span class="tName">ADD INPUT</span>
         </div>
         <div
           class="btn toolBtn"
           onclick="handleGateInputs(1, currentSelectedGate)"
         >
-        <span class="tIcon"><img src="icons/removeCon.svg" alt="remove" /></span><span class="tName">REMOVE INPUT</span></span>
+          <span class="tIcon"
+            ><img src="icons/removeCon.svg" alt="remove" /></span
+          ><span class="tName">REMOVE INPUT</span>
         </div>
       </div>
       <a class="git" href="https://github.com/Aswin-Koroth/Logic_Sim">
         <img class="gitIcon" src="icons/github.svg" alt="github-icon" />
-        <div> Aswin-Koroth </div>
+        <div>Aswin-Koroth</div>
       </a>
     </div>
     <div class="container">

@@ -238,13 +238,14 @@ class NAND extends AND {
     this.output[0].value = !this.output[0].value;
   }
 }
+//extends OR??
 class XOR extends OR {
   constructor(x, y, inpCount = 2) {
     super(x, y, inpCount);
     this.name = "XOR";
   }
   logic() {
-    super.logic();
+    // super.logic();
     // let count = 0;
     // for (let i = 0; i < this.inputCount; i++) if (this.input[i].value) count++;
     // if (count == this.inputCount) this.output[0].value = false;

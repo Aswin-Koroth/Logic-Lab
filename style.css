@@ -28,6 +28,23 @@
   user-select: none;
 }
 
+.preloader {
+  top: 0;
+  left: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: black;
+  height: 100vh;
+  width: 100vw;
+  color: var(--addRemove-color);
+  font-weight: bold;
+  position: absolute;
+  z-index: 999;
+  opacity: 1;
+  transition: all 0.3s linear;
+}
+
 /* Prompt Box / Alert Box */
 /* START */
 .promptbox,
